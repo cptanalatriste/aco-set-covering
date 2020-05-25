@@ -60,14 +60,11 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     }
 
     private List<Integer> getUncoveredSamples() {
-        ArrayList<Integer> uncoveredSamples = new ArrayList<>();
 
-        IntStream.range(0, this.numberOfSamples).forEachOrdered(sampleIndex -> {
-
-            if (!this.samplesCovered[sampleIndex]) {
-                uncoveredSamples.add(sampleIndex);
-            }
-        });
+        List<Integer> uncoveredSamples = IntStream.range(0, this.numberOfSamples)
+                .filter(sampleIndex -> !this.samplesCovered[sampleIndex])
+                .boxed()
+                .collect(Collectors.toList());
 
         return uncoveredSamples;
     }
