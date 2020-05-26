@@ -2,7 +2,7 @@ package setcov.isula.sample;
 
 import isula.aco.ConfigurationProvider;
 
-public class SetCoveringConfigurationProvider implements ConfigurationProvider {
+public class BaseAntSystemConfiguration implements ConfigurationProvider {
 
     public int getNumberOfAnts() {
 //        return 150;
@@ -32,5 +32,9 @@ public class SetCoveringConfigurationProvider implements ConfigurationProvider {
 
     public double getBasePheromoneValue() {
         return 90.0;
+    }
+
+    public String getConfigurationName() {
+        return "AntSystemConf1";
     }
 }

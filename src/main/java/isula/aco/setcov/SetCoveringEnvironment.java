@@ -4,7 +4,6 @@ import isula.aco.Environment;
 import isula.aco.exception.InvalidInputException;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -119,5 +118,26 @@ public class SetCoveringEnvironment extends Environment {
 
     public boolean isDominatedCandidate(int candidateIndex) {
         return this.dominatedCandidates.contains(candidateIndex);
+    }
+
+    public boolean validateSolution(Integer[] solutionFound) {
+        boolean[] samplesCovered = new boolean[this.getNumberOfSamples()];
+        int pendingSamples = this.getNumberOfSamples();
+
+        for (Integer candidateIndex : solutionFound) {
+            if (candidateIndex != null) {
+
+                for (Integer sampleIndex : this.getSamplesCovered(candidateIndex)) {
+                    if (!samplesCovered[sampleIndex]) {
+                        samplesCovered[sampleIndex] = true;
+                        pendingSamples -= 1;
+                    }
+                }
+
+
+            }
+        }
+
+        return pendingSamples == 0;
     }
 }

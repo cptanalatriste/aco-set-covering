@@ -19,19 +19,52 @@ public class AcoSetCoveringWithIsula {
     private static Logger logger = Logger.getLogger(AcoSetCoveringWithIsula.class.getName());
 
     private static final int UNASSIGNED = -1;
+    private static final double COVERED = 1.0;
+    private static final String TEAM_NAME = "Isula";
+
 
     public static void main(String... args) throws InvalidInputException, ConfigurationException, IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
-        String fileName = "AC_10_cover.txt";
+        String instanceName = "AC_01";
+        String fileName = getInputFile(instanceName);
         double[][] problemRepresentation = getRepresentationFromFile(fileName);
-        SetCoveringConfigurationProvider configurationProvider = new SetCoveringConfigurationProvider();
+        BaseAntSystemConfiguration configurationProvider = new AlternativeAntSystemConfiguration();
 
-
-        solveProblem(problemRepresentation, configurationProvider);
+        Integer[] solutionFound = solveProblem(problemRepresentation, configurationProvider);
+        writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
     }
 
-    private static void solveProblem(double[][] problemRepresentation, SetCoveringConfigurationProvider
+    private static void writeSolutionToFile(String instanceName, String algorithmName, Integer[] solutionFound) throws FileNotFoundException {
+        String outputFile = getOutputFile(instanceName, algorithmName);
+        PrintWriter printWriter = new PrintWriter(outputFile);
+
+        int solutionSize = 0;
+        StringBuilder solutionAsString = new StringBuilder();
+        for (Integer solutionComponent : solutionFound) {
+            if (solutionComponent != null) {
+                solutionSize += 1;
+                solutionAsString.append(solutionComponent).append(" ");
+            }
+        }
+
+        printWriter.println(solutionSize);
+        printWriter.println(solutionAsString.substring(0, solutionAsString.length() - 1));
+
+        printWriter.close();
+
+        logger.info("Solution written to " + outputFile);
+    }
+
+    private static String getInputFile(String instanceName) {
+        return instanceName + "_cover.txt";
+    }
+
+    private static String getOutputFile(String instanceName, String algorithmName) {
+        return TEAM_NAME + "_" + algorithmName + "_Track1_" + instanceName + ".txt";
+    }
+
+    private static Integer[] solveProblem(double[][] problemRepresentation, BaseAntSystemConfiguration
             configurationProvider) throws InvalidInputException, ConfigurationException {
 
         AntColony<Integer, SetCoveringEnvironment> antColony = createAntColony(configurationProvider);
@@ -46,6 +79,12 @@ public class AcoSetCoveringWithIsula {
         problemSolver.getAntColony().addAntPolicies(new RandomNodeSelection<>());
 
         problemSolver.solveProblem();
+        Integer[] solutionFound = problemSolver.getBestSolution();
+        if (!environment.validateSolution(solutionFound)) {
+            throw new RuntimeException("The solution found is not valid :(");
+        }
+
+        return solutionFound;
 
     }
 
@@ -56,13 +95,13 @@ public class AcoSetCoveringWithIsula {
                                                  Integer solutionComponent, SetCoveringEnvironment environment,
                                                  ConfigurationProvider configurationProvider) {
 
-                SetCoveringConfigurationProvider setCoveringParameters = (SetCoveringConfigurationProvider) configurationProvider;
+                BaseAntSystemConfiguration setCoveringParameters = (BaseAntSystemConfiguration) configurationProvider;
                 return setCoveringParameters.getBasePheromoneValue() / ant.getSolutionCost(environment);
             }
         };
     }
 
-    private static AntColony<Integer, SetCoveringEnvironment> createAntColony(SetCoveringConfigurationProvider configurationProvide) {
+    private static AntColony<Integer, SetCoveringEnvironment> createAntColony(BaseAntSystemConfiguration configurationProvide) {
         return new AntColony<>(configurationProvide.getNumberOfAnts()) {
             @Override
             protected Ant<Integer, SetCoveringEnvironment> createAnt(SetCoveringEnvironment environment) {
@@ -104,7 +143,7 @@ public class AcoSetCoveringWithIsula {
 
                     for (String currentToken : tokens) {
                         int candidateIndex = Integer.parseInt(currentToken);
-                        problemRepresentation[sampleIndex][candidateIndex] = 1.0;
+                        problemRepresentation[sampleIndex][candidateIndex] = COVERED;
                     }
 
                     sampleIndex = UNASSIGNED;
@@ -113,6 +152,8 @@ public class AcoSetCoveringWithIsula {
                 lineCounter += 1;
             }
         }
+
+        logger.info("Problem information gathered from: " + fileName);
         return problemRepresentation;
     }
 }
