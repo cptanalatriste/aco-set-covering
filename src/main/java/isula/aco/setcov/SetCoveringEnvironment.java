@@ -26,16 +26,15 @@ public class SetCoveringEnvironment extends Environment {
      */
     public SetCoveringEnvironment(double[][] problemRepresentation) throws InvalidInputException {
         super(problemRepresentation);
-        this.numberOfCandidates = problemRepresentation[0].length;
         this.numberOfSamples = problemRepresentation.length;
     }
 
     protected double[][] createPheromoneMatrix() {
-        return new double[this.numberOfCandidates][];
+        return new double[this.getNumberOfCandidates()][1];
     }
 
     public int getNumberOfCandidates() {
-        return this.numberOfCandidates;
+        return this.getProblemRepresentation()[0].length;
     }
 
     public List<Integer> getSamplesCovered(int candidateIndex) {

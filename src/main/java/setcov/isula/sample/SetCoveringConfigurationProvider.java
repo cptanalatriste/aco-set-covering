@@ -5,26 +5,30 @@ import isula.aco.ConfigurationProvider;
 public class SetCoveringConfigurationProvider implements ConfigurationProvider {
 
     public int getNumberOfAnts() {
-        return 0;
+        return 150;
     }
 
     public double getEvaporationRatio() {
-        return 0;
+        return 0.2;
     }
 
     public int getNumberOfIterations() {
-        return 0;
+        return 5;
     }
 
     public double getInitialPheromoneValue() {
-        return 0;
+        return this.getBasePheromoneValue();
     }
 
     public double getHeuristicImportance() {
-        return 0;
+        return 1.5;
     }
 
     public double getPheromoneImportance() {
-        return 0;
+        return 4;
+    }
+
+    public double getBasePheromoneValue() {
+        return 90.0;
     }
 }

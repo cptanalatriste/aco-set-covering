@@ -62,4 +62,22 @@ public class AntForSetCoveringTest {
 
         assertEquals(0, ant.getNeighbourhood(environment).size());
     }
+
+    @Test
+    public void testSetPheromoneTrailValue() {
+
+        AntForSetCovering ant = new AntForSetCovering(environment);
+        double initialPheromoneValue = 0;
+        int componentIndex = 16;
+
+        assertEquals(initialPheromoneValue, ant.getPheromoneTrailValue(componentIndex, 0,
+                environment).intValue());
+
+        double pheromoneDeposit = 4.0;
+        ant.setPheromoneTrailValue(componentIndex, 0, environment, pheromoneDeposit);
+
+        assertEquals(pheromoneDeposit, ant.getPheromoneTrailValue(componentIndex, 0,
+                environment));
+
+    }
 }

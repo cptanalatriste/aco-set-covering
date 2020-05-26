@@ -2,7 +2,6 @@ package isula.aco.setcov;
 
 import isula.aco.Ant;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,12 +60,10 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
     private List<Integer> getUncoveredSamples() {
 
-        List<Integer> uncoveredSamples = IntStream.range(0, this.numberOfSamples)
+        return IntStream.range(0, this.numberOfSamples)
                 .filter(sampleIndex -> !this.samplesCovered[sampleIndex])
                 .boxed()
                 .collect(Collectors.toList());
-
-        return uncoveredSamples;
     }
 
     public double getSolutionCost(SetCoveringEnvironment environment) {
@@ -95,11 +92,17 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
     public Double getPheromoneTrailValue(Integer solutionComponent, Integer positionInSolution,
                                          SetCoveringEnvironment environment) {
-        return null;
+
+
+        double[][] pheromoneMatrix = environment.getPheromoneMatrix();
+        return pheromoneMatrix[solutionComponent][0];
     }
 
     public void setPheromoneTrailValue(Integer solutionComponent, Integer positionInSolution,
                                        SetCoveringEnvironment environment, Double value) {
+
+        double[][] pheromoneMatrix = environment.getPheromoneMatrix();
+        pheromoneMatrix[solutionComponent][0] = value;
 
     }
 }

@@ -56,7 +56,8 @@ public class AcoSetCoveringWithIsula {
                                                  Integer solutionComponent, SetCoveringEnvironment environment,
                                                  ConfigurationProvider configurationProvider) {
 
-                return 0.0;
+                SetCoveringConfigurationProvider setCoveringParameters = (SetCoveringConfigurationProvider) configurationProvider;
+                return setCoveringParameters.getBasePheromoneValue() / ant.getSolutionCost(environment);
             }
         };
     }
