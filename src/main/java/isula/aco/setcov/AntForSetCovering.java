@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
+    private final Set<Integer> mandatoryCandidates;
     private boolean[] samplesCovered;
     private final double[][] problemRepresentation;
     private int numberOfSamples;
@@ -20,6 +21,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
         this.numberOfSamples = environment.getNumberOfSamples();
         this.samplesCovered = new boolean[numberOfSamples];
         this.problemRepresentation = environment.getProblemRepresentation();
+        this.mandatoryCandidates = environment.getMandatoryCandidates();
 
         this.setSolution(new Integer[environment.getNumberOfCandidates()]);
     }
@@ -28,6 +30,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     public void clear() {
         super.clear();
         this.samplesCovered = new boolean[numberOfSamples];
+        this.mandatoryCandidates.forEach(this::visitNode);
     }
 
     @Override
@@ -47,8 +50,8 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
     public Double getHeuristicValue(Integer candidateIndex, Integer positionInSolution,
                                     SetCoveringEnvironment environment) {
-        List<Integer> uncoveredSamples = this.getUncoveredSamples();
-        List<Integer> coveredByCandidate = environment.getSamplesCovered(candidateIndex);
+        Set<Integer> uncoveredSamples = this.getUncoveredSamples();
+        Set<Integer> coveredByCandidate = environment.getSamplesCovered(candidateIndex);
 
         Set<Integer> commonElements = uncoveredSamples.stream()
                 .distinct()
@@ -58,12 +61,12 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
         return commonElements.size() / (double) this.numberOfSamples;
     }
 
-    private List<Integer> getUncoveredSamples() {
+    private Set<Integer> getUncoveredSamples() {
 
         return IntStream.range(0, this.numberOfSamples)
                 .filter(sampleIndex -> !this.samplesCovered[sampleIndex])
                 .boxed()
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     public double getSolutionCost(SetCoveringEnvironment environment) {
@@ -76,7 +79,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     }
 
     public boolean isSolutionReady(SetCoveringEnvironment environment) {
-        List<Integer> uncoveredSamples = this.getUncoveredSamples();
+        Set<Integer> uncoveredSamples = this.getUncoveredSamples();
         return uncoveredSamples.size() == 0;
     }
 
@@ -84,7 +87,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     public List<Integer> getNeighbourhood(SetCoveringEnvironment environment) {
 
         return IntStream.range(0, environment.getNumberOfCandidates())
-                .filter(candidateIndex -> !this.isNodeVisited(candidateIndex))
+                .filter(candidateIndex -> !this.isNodeVisited(candidateIndex) && !environment.isDominatedCandidate(candidateIndex))
                 .boxed()
                 .collect(Collectors.toList());
 

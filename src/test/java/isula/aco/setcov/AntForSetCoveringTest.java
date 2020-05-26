@@ -56,7 +56,8 @@ public class AntForSetCoveringTest {
         AntForSetCovering ant = new AntForSetCovering(environment);
         List<Integer> initialNeighbourHood = ant.getNeighbourhood(environment);
 
-        assertEquals(environment.getNumberOfCandidates(), initialNeighbourHood.size());
+        int expectedNeighbourhood = environment.getNumberOfCandidates() - environment.getDominatedCandidates().size();
+        assertEquals(expectedNeighbourhood, initialNeighbourHood.size());
 
         IntStream.range(0, environment.getNumberOfCandidates()).forEachOrdered(ant::visitNode);
 

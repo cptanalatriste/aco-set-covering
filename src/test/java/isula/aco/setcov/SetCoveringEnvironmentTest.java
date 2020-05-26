@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import setcov.isula.sample.AcoSetCoveringWithIsula;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,12 +32,50 @@ public class SetCoveringEnvironmentTest {
     public void testGetSamplesCovered() {
 
         int candidateIndex = 16;
-        List<Integer> coveredByCandidate = environment.getSamplesCovered(candidateIndex);
+        Set<Integer> coveredByCandidate = environment.getSamplesCovered(candidateIndex);
         assertTrue(coveredByCandidate.contains(0));
         assertTrue(coveredByCandidate.contains(3));
         assertTrue(coveredByCandidate.contains(4));
 
         assertFalse(coveredByCandidate.contains(9));
+
+    }
+
+    @Test
+    void testFindDominatedCandidates() throws InvalidInputException {
+
+        assertTrue(this.environment.getDominatedCandidates().size() <= this.environment.getNumberOfCandidates());
+
+
+        double[][] testRepresentation = {{1., 0., 0., 0.},
+                {1., 0., 1., 1.},
+                {1., 1., 1., 1.},
+                {0., 1., 0., 1.}};
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+
+        Set<Integer> dominatedCandidates = smallEnvironment.getDominatedCandidates();
+
+        assertEquals(2, dominatedCandidates.size());
+        assertFalse(smallEnvironment.isDominatedCandidate(0));
+        assertTrue(smallEnvironment.isDominatedCandidate(1));
+        assertTrue(smallEnvironment.isDominatedCandidate(2));
+        assertFalse(smallEnvironment.isDominatedCandidate(3));
+
+
+    }
+
+    @Test
+    public void getMandatoryCandidates() throws InvalidInputException {
+
+        double[][] testRepresentation = {{0., 1., 0., 0.},
+                {1., 0., 1., 0.},
+                {0., 0., 1., 1.},
+                {1., 0., 0., 1.}};
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+        Set<Integer> mandatoryCandidates = smallEnvironment.getMandatoryCandidates();
+
+        assertEquals(1, mandatoryCandidates.size());
+        assertTrue(mandatoryCandidates.contains(1));
 
     }
 }

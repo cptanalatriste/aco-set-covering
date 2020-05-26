@@ -5,7 +5,9 @@ import isula.aco.ConfigurationProvider;
 public class SetCoveringConfigurationProvider implements ConfigurationProvider {
 
     public int getNumberOfAnts() {
-        return 150;
+//        return 150;
+        return 10;
+
     }
 
     public double getEvaporationRatio() {
