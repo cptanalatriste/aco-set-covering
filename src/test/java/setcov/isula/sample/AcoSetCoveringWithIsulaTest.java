@@ -11,7 +11,7 @@ public class AcoSetCoveringWithIsulaTest {
     @Test
     public void testReadingSmallProblemFile() throws IOException {
         String fileName = "AC_10_cover.txt";
-        double[][] problemRepresentation = AcoSetCoveringWithIsula.getRepresentationFromFile(fileName);
+        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
 
         int numberOfSamples = 605;
         int numberOfCandidates = 2904;

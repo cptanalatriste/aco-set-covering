@@ -2,7 +2,7 @@ package isula.aco.setcov;
 
 import isula.aco.exception.InvalidInputException;
 import org.junit.jupiter.api.Test;
-import setcov.isula.sample.AcoSetCoveringWithIsula;
+import setcov.isula.sample.FileUtils;
 
 import java.io.IOException;
 import java.util.Set;
@@ -15,7 +15,7 @@ public class SetCoveringEnvironmentTest {
 
     public SetCoveringEnvironmentTest() throws IOException, InvalidInputException {
         String fileName = "AC_10_cover.txt";
-        double[][] problemRepresentation = AcoSetCoveringWithIsula.getRepresentationFromFile(fileName);
+        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
         this.environment = new SetCoveringEnvironment(problemRepresentation);
     }
 

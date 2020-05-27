@@ -4,36 +4,57 @@ import isula.aco.ConfigurationProvider;
 
 public class BaseAntSystemConfiguration implements ConfigurationProvider {
 
+    private ConfigurationProvider configurationProvider;
+
+    public void setNumberOfAnts(int numberOfAnts) {
+        this.numberOfAnts = numberOfAnts;
+    }
+
+    public void setNumberOfIterations(int numberOfIterations) {
+        this.numberOfIterations = numberOfIterations;
+    }
+
+    private int numberOfAnts;
+    private int numberOfIterations;
+
+
+    public BaseAntSystemConfiguration(ConfigurationProvider configurationProvider) {
+        this.configurationProvider = configurationProvider;
+        this.numberOfAnts = configurationProvider.getNumberOfAnts();
+        this.numberOfIterations = configurationProvider.getNumberOfIterations();
+    }
+
     public int getNumberOfAnts() {
-//        return 150;
-        return 50;
+        return numberOfAnts;
     }
 
     public double getEvaporationRatio() {
-        return 0.2;
+        return configurationProvider.getEvaporationRatio();
     }
 
     public int getNumberOfIterations() {
-        return 5;
+        return numberOfIterations;
     }
 
     public double getInitialPheromoneValue() {
-        return this.getBasePheromoneValue();
+        return configurationProvider.getInitialPheromoneValue();
     }
 
     public double getHeuristicImportance() {
-        return 1.5;
+        return configurationProvider.getHeuristicImportance();
     }
 
     public double getPheromoneImportance() {
-        return 4;
+        return configurationProvider.getPheromoneImportance();
     }
 
     public double getBasePheromoneValue() {
-        return 90.0;
+        return configurationProvider.getInitialPheromoneValue();
     }
 
     public String getConfigurationName() {
         return "AntSystemConf1";
     }
+
+
 }
