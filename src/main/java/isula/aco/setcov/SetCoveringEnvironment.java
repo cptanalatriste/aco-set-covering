@@ -120,7 +120,7 @@ public class SetCoveringEnvironment extends Environment {
         return this.dominatedCandidates.contains(candidateIndex);
     }
 
-    public boolean validateSolution(Integer[] solutionFound) {
+    public boolean isValidSolution(Integer[] solutionFound) {
         boolean[] samplesCovered = new boolean[this.getNumberOfSamples()];
         int pendingSamples = this.getNumberOfSamples();
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import setcov.isula.sample.AcoSetCoveringWithIsula;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -80,5 +81,22 @@ public class AntForSetCoveringTest {
         assertEquals(pheromoneDeposit, ant.getPheromoneTrailValue(componentIndex, 0,
                 environment));
 
+    }
+
+    @Test
+    void testClear() throws InvalidInputException {
+        double[][] testRepresentation = {{0., 1., 0., 0.},
+                {1., 0., 1., 0.},
+                {0., 0., 1., 1.},
+                {1., 0., 0., 1.}};
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+        AntForSetCovering ant = new AntForSetCovering(smallEnvironment);
+        ant.clear();
+
+        assertEquals(1, ant.getSolution()[0]);
+        assertEquals(1, ant.getCurrentIndex());
+
+        List<Integer> neighbourhood = Arrays.asList(0, 2, 3);
+        assertEquals(neighbourhood, ant.getNeighbourhood(smallEnvironment));
     }
 }

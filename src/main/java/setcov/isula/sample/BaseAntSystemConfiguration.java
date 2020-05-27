@@ -6,8 +6,7 @@ public class BaseAntSystemConfiguration implements ConfigurationProvider {
 
     public int getNumberOfAnts() {
 //        return 150;
-        return 10;
-
+        return 50;
     }
 
     public double getEvaporationRatio() {

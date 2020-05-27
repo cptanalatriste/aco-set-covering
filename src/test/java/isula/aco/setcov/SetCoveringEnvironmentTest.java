@@ -78,4 +78,20 @@ public class SetCoveringEnvironmentTest {
         assertTrue(mandatoryCandidates.contains(1));
 
     }
+
+    @Test
+    void testValidateSolution() throws InvalidInputException {
+        double[][] testRepresentation = {{0., 1., 0., 0.},
+                {1., 0., 1., 0.},
+                {0., 0., 1., 1.},
+                {1., 0., 0., 1.}};
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+
+        Integer[] invalidSolution = {3, 1, null, null};
+        assertFalse(smallEnvironment.isValidSolution(invalidSolution));
+
+        Integer[] validSolution = {0, 1, 2, null};
+        assertTrue(smallEnvironment.isValidSolution(validSolution));
+
+    }
 }

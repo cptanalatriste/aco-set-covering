@@ -80,7 +80,7 @@ public class AcoSetCoveringWithIsula {
 
         problemSolver.solveProblem();
         Integer[] solutionFound = problemSolver.getBestSolution();
-        if (!environment.validateSolution(solutionFound)) {
+        if (!environment.isValidSolution(solutionFound)) {
             throw new RuntimeException("The solution found is not valid :(");
         }
 
