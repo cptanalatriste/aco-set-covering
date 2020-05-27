@@ -2,7 +2,9 @@ package isula.aco.setcov;
 
 import isula.aco.Ant;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -74,8 +76,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
             throw new RuntimeException("Cannot calculate cost of an incomplete solution");
         }
 
-
-        return this.getCurrentIndex();
+        return Math.toIntExact(Arrays.stream(getSolution()).filter(Objects::nonNull).count());
     }
 
     public boolean isSolutionReady(SetCoveringEnvironment environment) {

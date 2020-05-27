@@ -98,11 +98,19 @@ public class SetCoveringEnvironment extends Environment {
     }
 
     public Set<Integer> getCoveringCandidates(int sampleIndex) {
-        return IntStream.range(0, this.getNumberOfCandidates())
+        return getCoveringCandidates(sampleIndex, getAllCandidates());
+    }
+
+    private Set<Integer> getCoveringCandidates(int sampleIndex, IntStream candidateStream) {
+        return candidateStream
                 .filter(candidateIndex -> !this.isDominatedCandidate(candidateIndex) &&
                         this.getProblemRepresentation()[sampleIndex][candidateIndex] == COVERED)
                 .boxed()
                 .collect(Collectors.toSet());
+    }
+
+    private IntStream getAllCandidates() {
+        return IntStream.range(0, this.getNumberOfCandidates());
     }
 
 
@@ -133,8 +141,6 @@ public class SetCoveringEnvironment extends Environment {
                         pendingSamples -= 1;
                     }
                 }
-
-
             }
         }
 

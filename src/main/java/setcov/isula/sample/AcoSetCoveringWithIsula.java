@@ -7,6 +7,7 @@ import isula.aco.algorithms.antsystem.RandomNodeSelection;
 import isula.aco.algorithms.antsystem.StartPheromoneMatrix;
 import isula.aco.exception.InvalidInputException;
 import isula.aco.setcov.AntForSetCovering;
+import isula.aco.setcov.ApplyLocalSearch;
 import isula.aco.setcov.SetCoveringEnvironment;
 
 import javax.naming.ConfigurationException;
@@ -26,7 +27,7 @@ public class AcoSetCoveringWithIsula {
     public static void main(String... args) throws InvalidInputException, ConfigurationException, IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
-        String instanceName = "AC_01";
+        String instanceName = "AC_10";
         String fileName = getInputFile(instanceName);
         double[][] problemRepresentation = getRepresentationFromFile(fileName);
         BaseAntSystemConfiguration configurationProvider = new AlternativeAntSystemConfiguration();
@@ -76,7 +77,7 @@ public class AcoSetCoveringWithIsula {
                 new PerformEvaporation<>());
 
         problemSolver.addDaemonActions(getPheromoneUpdatePolicy());
-        problemSolver.getAntColony().addAntPolicies(new RandomNodeSelection<>());
+        problemSolver.getAntColony().addAntPolicies(new RandomNodeSelection<>(), new ApplyLocalSearch());
 
         problemSolver.solveProblem();
         Integer[] solutionFound = problemSolver.getBestSolution();
