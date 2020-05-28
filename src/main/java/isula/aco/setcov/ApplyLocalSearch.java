@@ -60,4 +60,9 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
 
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ApplyLocalSearch{}";
+    }
 }

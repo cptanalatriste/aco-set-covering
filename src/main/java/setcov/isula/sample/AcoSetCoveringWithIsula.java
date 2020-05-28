@@ -19,43 +19,54 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static setcov.isula.sample.FileUtils.writeObjectToFile;
+
 public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static Logger logger = Logger.getLogger(AcoSetCoveringWithIsula.class.getName());
 
 
-    private static final int NUMBER_OF_ANTS = 10;
-    private static final int NUMBER_OF_ITERATIONS = 30;
+    private static final int NUMBER_OF_ANTS = 5;
+    private static final int NUMBER_OF_ITERATIONS = 10;
 
+    private SetCoveringEnvironment setCoveringEnvironment;
 
-    private double[][] problemRepresentation;
-
-    public AcoSetCoveringWithIsula(double[][] problemRepresentation) {
-        this.problemRepresentation = problemRepresentation;
+    public AcoSetCoveringWithIsula(SetCoveringEnvironment setCoveringEnvironment) {
+        this.setCoveringEnvironment = setCoveringEnvironment;
     }
 
 
     public static void main(String... args) throws InvalidInputException, ConfigurationException, IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
-        String instanceName = "AC_10";
-        String fileName = FileUtils.getInputFile(instanceName);
-        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
 
-        AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(problemRepresentation);
-        BaseAntSystemConfiguration configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration();
+        for (int instanceNumber = 1; instanceNumber < 33; instanceNumber += 1) {
+            String instanceName = "AC_" + String.format("%02d", instanceNumber);
+            String fileName = FileUtils.getInputFile(instanceName);
+            double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
 
-        configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
-        configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
+            SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(problemRepresentation);
+            AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
+            BaseAntSystemConfiguration configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration(instanceName);
 
-        Integer[] solutionFound = solveProblem(problemRepresentation, configurationProvider).getBestSolution();
-        FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
+            configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
+            configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
+
+            AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment, configurationProvider);
+            writeObjectToFile(instanceName + "_solver.txt", problemSolver);
+
+            Integer[] solutionFound = problemSolver.getBestSolution();
+            FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
+
+        }
+
     }
 
 
-    private BaseAntSystemConfiguration getOptimisedConfiguration() {
+    private BaseAntSystemConfiguration getOptimisedConfiguration(String instanceName) throws FileNotFoundException {
         List<Integer> numberOfAntsValues = Collections.singletonList(3);
         List<Integer> numberOfIterationValues = Collections.singletonList(5);
+
         List<Double> evaporationRatioValues = Arrays.asList(.1, .5, .9);
         List<Double> initialPheromoneValues = Arrays.asList(1., 50., 100.);
         List<Double> heuristicImportanceValues = Arrays.asList(0., 2., 5.);
@@ -64,7 +75,9 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         AcoParameterTuner parameterTuner = new AcoParameterTuner(numberOfAntsValues, evaporationRatioValues,
                 numberOfIterationValues, initialPheromoneValues, heuristicImportanceValues, pheromoneImportanceValues);
 
+        logger.info("Starting parameter tuning");
         ConfigurationProvider configurationProvider = parameterTuner.getOptimalConfiguration(this);
+        writeObjectToFile(instanceName + "_tuning.txt", parameterTuner);
 
         return new BaseAntSystemConfiguration(configurationProvider);
     }
@@ -74,7 +87,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         BaseAntSystemConfiguration baseAntSystemConfiguration = new BaseAntSystemConfiguration(configurationProvider);
         AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = null;
         try {
-            problemSolver = solveProblem(this.problemRepresentation, baseAntSystemConfiguration);
+            problemSolver = solveProblem(this.setCoveringEnvironment, baseAntSystemConfiguration);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,12 +95,11 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         return problemSolver.getBestSolutionCost();
     }
 
-    private static AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(double[][] problemRepresentation,
+    private static AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(SetCoveringEnvironment environment,
                                                                                   BaseAntSystemConfiguration
-                                                                                          configurationProvider) throws InvalidInputException, ConfigurationException {
+                                                                                          configurationProvider) throws ConfigurationException {
 
         AntColony<Integer, SetCoveringEnvironment> antColony = createAntColony(configurationProvider);
-        SetCoveringEnvironment environment = new SetCoveringEnvironment(problemRepresentation);
 
         AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new AcoProblemSolver<>();
         problemSolver.initialize(environment, antColony, configurationProvider);

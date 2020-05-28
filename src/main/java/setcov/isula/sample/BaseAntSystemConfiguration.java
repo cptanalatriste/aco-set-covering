@@ -1,60 +1,38 @@
 package setcov.isula.sample;
 
 import isula.aco.ConfigurationProvider;
+import isula.aco.tuning.BasicConfigurationProvider;
 
-public class BaseAntSystemConfiguration implements ConfigurationProvider {
+public class BaseAntSystemConfiguration extends BasicConfigurationProvider {
 
-    private ConfigurationProvider configurationProvider;
 
-    public void setNumberOfAnts(int numberOfAnts) {
-        this.numberOfAnts = numberOfAnts;
-    }
-
-    public void setNumberOfIterations(int numberOfIterations) {
-        this.numberOfIterations = numberOfIterations;
-    }
-
-    private int numberOfAnts;
-    private int numberOfIterations;
-
+    private double basePheromoneValue;
 
     public BaseAntSystemConfiguration(ConfigurationProvider configurationProvider) {
-        this.configurationProvider = configurationProvider;
-        this.numberOfAnts = configurationProvider.getNumberOfAnts();
-        this.numberOfIterations = configurationProvider.getNumberOfIterations();
-    }
-
-    public int getNumberOfAnts() {
-        return numberOfAnts;
-    }
-
-    public double getEvaporationRatio() {
-        return configurationProvider.getEvaporationRatio();
-    }
-
-    public int getNumberOfIterations() {
-        return numberOfIterations;
-    }
-
-    public double getInitialPheromoneValue() {
-        return configurationProvider.getInitialPheromoneValue();
-    }
-
-    public double getHeuristicImportance() {
-        return configurationProvider.getHeuristicImportance();
-    }
-
-    public double getPheromoneImportance() {
-        return configurationProvider.getPheromoneImportance();
+        super(configurationProvider);
+        this.basePheromoneValue = configurationProvider.getInitialPheromoneValue();
     }
 
     public double getBasePheromoneValue() {
-        return configurationProvider.getInitialPheromoneValue();
+        return basePheromoneValue;
     }
 
     public String getConfigurationName() {
-        return "AntSystemConf1";
+        return "AntSystemConfiguration";
     }
 
+
+    @Override
+    public String toString() {
+        return "BaseAntSystemConfiguration{" +
+                "numberOfAnts=" + getNumberOfAnts() +
+                ", evaporationRatio=" + getEvaporationRatio() +
+                ", numberOfIterations=" + getNumberOfIterations() +
+                ", initialPheromoneValue=" + getInitialPheromoneValue() +
+                ", heuristicImportance=" + getHeuristicImportance() +
+                ", pheromoneImportance=" + getPheromoneImportance() +
+                ", basePheromoneValue=" + basePheromoneValue +
+                '}';
+    }
 
 }

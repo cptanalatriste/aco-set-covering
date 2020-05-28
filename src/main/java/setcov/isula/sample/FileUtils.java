@@ -1,13 +1,12 @@
 package setcov.isula.sample;
 
 import java.io.*;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public class FileUtils {
 
     private static Logger logger = Logger.getLogger(FileUtils.class.getName());
-
+    private static String DATA_DIRECTORY = "/Users/cgavidia/Documents/data/";
 
     private static final int UNASSIGNED = -1;
     private static final double COVERED = 1.0;
@@ -34,6 +33,14 @@ public class FileUtils {
         logger.info("Solution written to " + outputFile);
     }
 
+    static void writeObjectToFile(String fileName, Object anObject) throws FileNotFoundException {
+        PrintWriter printWriter = new PrintWriter(fileName);
+        printWriter.println(anObject.toString());
+        printWriter.close();
+        logger.info("Object written to: " + fileName);
+
+    }
+
     static String getInputFile(String instanceName) {
         return instanceName + "_cover.txt";
     }
@@ -44,7 +51,6 @@ public class FileUtils {
 
     public static double[][] getRepresentationFromFile(String fileName) throws IOException {
 
-        File file = new File(Objects.requireNonNull(AcoSetCoveringWithIsula.class.getClassLoader().getResource(fileName)).getFile());
         int numberOfSamples;
         int numberOfCandidates;
 
@@ -53,7 +59,7 @@ public class FileUtils {
         int lineCounter = 0;
         int sampleIndex = UNASSIGNED;
         int candidatesForSample = UNASSIGNED;
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(DATA_DIRECTORY + fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split(" ");
