@@ -1,21 +1,19 @@
 package setcov.isula.sample;
 
 import isula.aco.ConfigurationProvider;
+import isula.aco.algorithms.antsystem.AntSystemConfigurationProvider;
 import isula.aco.tuning.BasicConfigurationProvider;
 
-public class BaseAntSystemConfiguration extends BasicConfigurationProvider {
+public class BaseAntSystemConfiguration extends BasicConfigurationProvider implements AntSystemConfigurationProvider {
 
 
-    private double basePheromoneValue;
+    private double pheromoneDepositFactor;
 
     public BaseAntSystemConfiguration(ConfigurationProvider configurationProvider) {
         super(configurationProvider);
-        this.basePheromoneValue = configurationProvider.getInitialPheromoneValue();
+        this.pheromoneDepositFactor = configurationProvider.getInitialPheromoneValue();
     }
 
-    public double getBasePheromoneValue() {
-        return basePheromoneValue;
-    }
 
     public String getConfigurationName() {
         return "AntSystemConfiguration";
@@ -31,8 +29,12 @@ public class BaseAntSystemConfiguration extends BasicConfigurationProvider {
                 ", initialPheromoneValue=" + getInitialPheromoneValue() +
                 ", heuristicImportance=" + getHeuristicImportance() +
                 ", pheromoneImportance=" + getPheromoneImportance() +
-                ", basePheromoneValue=" + basePheromoneValue +
+                ", pheromoneDepositFactor=" + pheromoneDepositFactor +
                 '}';
     }
 
+    @Override
+    public double getPheromoneDepositFactor() {
+        return pheromoneDepositFactor;
+    }
 }

@@ -4,10 +4,7 @@ import isula.aco.AntPolicy;
 import isula.aco.AntPolicyType;
 import isula.aco.ConfigurationProvider;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment> {
@@ -28,11 +25,13 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
         for (Integer candidateIndex : currentSolution) {
 
             if (candidateIndex != null) {
-                Set<Integer> exclusivelyCovered = environment.getSamplesCovered(candidateIndex);
+                Set<Integer> exclusivelyCovered = new HashSet<>(
+                        environment.getSamplesForNonDominatedCandidate(candidateIndex));
 
                 for (Integer opponentIndex : currentSolution) {
-                    if (opponentIndex != null && !opponentIndex.equals(candidateIndex) && !componentsToRemove.contains(opponentIndex)) {
-                        Set<Integer> coveredByOpponent = environment.getSamplesCovered(opponentIndex);
+                    if (opponentIndex != null && !opponentIndex.equals(candidateIndex) &&
+                            !componentsToRemove.contains(opponentIndex)) {
+                        Set<Integer> coveredByOpponent = environment.getSamplesForNonDominatedCandidate(opponentIndex);
                         exclusivelyCovered.removeAll(coveredByOpponent);
 
                         if (exclusivelyCovered.size() == 0) {

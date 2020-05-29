@@ -18,7 +18,9 @@ class ApplyLocalSearchTest {
                 {1., 0., 0., 1., 0.}};
         SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
         AntForSetCovering ant = new AntForSetCovering(smallEnvironment);
-        IntStream.range(0, smallEnvironment.getNumberOfCandidates()).forEachOrdered(ant::visitNode);
+        IntStream.range(0, smallEnvironment.getNumberOfCandidates())
+                .filter((index) -> index != 1)
+                .forEach(ant::visitNode);
         double originalCost = ant.getSolutionCost(smallEnvironment);
 
         ApplyLocalSearch localSearchPolicy = new ApplyLocalSearch();
@@ -28,6 +30,7 @@ class ApplyLocalSearchTest {
         Integer[] improvedSolution = ant.getSolution();
         assertTrue(smallEnvironment.isValidSolution(improvedSolution));
         assertTrue(ant.getSolutionCost(smallEnvironment) < originalCost);
+        assertTrue(smallEnvironment.isValidSolution(improvedSolution));
 
     }
 }

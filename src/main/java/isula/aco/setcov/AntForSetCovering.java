@@ -1,11 +1,9 @@
 package isula.aco.setcov;
 
 import isula.aco.Ant;
+import isula.aco.exception.SolutionConstructionException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,7 +11,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
     private final Set<Integer> mandatoryCandidates;
     private boolean[] samplesCovered;
-    private final double[][] problemRepresentation;
+    private Map<Integer, Set<Integer>> samplesPerCandidate;
     private int numberOfSamples;
 
 
@@ -22,7 +20,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
         this.numberOfSamples = environment.getNumberOfSamples();
         this.samplesCovered = new boolean[numberOfSamples];
-        this.problemRepresentation = environment.getProblemRepresentation();
+        this.samplesPerCandidate = environment.getSamplesPerCandidate();
         this.mandatoryCandidates = environment.getMandatoryCandidates();
 
         this.setSolution(new Integer[environment.getNumberOfCandidates()]);
@@ -39,11 +37,13 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     public void visitNode(Integer candidateIndex) {
         super.visitNode(candidateIndex);
 
-        IntStream.range(0, this.numberOfSamples).forEachOrdered(sampleIndex -> {
-            if ((int) this.problemRepresentation[sampleIndex][candidateIndex] == SetCoveringEnvironment.COVERED) {
-                this.samplesCovered[sampleIndex] = true;
-            }
-        });
+        Set<Integer> candidateSamples = samplesPerCandidate.get(candidateIndex);
+
+        if (candidateSamples == null) {
+            throw new SolutionConstructionException("Candidate " + candidateIndex + " is dominated.");
+        }
+
+        candidateSamples.forEach((sampleIndex) -> this.samplesCovered[sampleIndex] = true);
     }
 
     public boolean isSampleCovered(int sampleIndex) {
@@ -53,7 +53,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     public Double getHeuristicValue(Integer candidateIndex, Integer positionInSolution,
                                     SetCoveringEnvironment environment) {
         Set<Integer> uncoveredSamples = this.getUncoveredSamples();
-        Set<Integer> coveredByCandidate = environment.getSamplesCovered(candidateIndex);
+        Set<Integer> coveredByCandidate = environment.getSamplesForNonDominatedCandidate(candidateIndex);
 
         Set<Integer> commonElements = uncoveredSamples.stream()
                 .distinct()

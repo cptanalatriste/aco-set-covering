@@ -31,13 +31,13 @@ public class SetCoveringEnvironmentTest {
     @Test
     public void testGetSamplesCovered() {
 
-        int candidateIndex = 16;
-        Set<Integer> coveredByCandidate = environment.getSamplesCovered(candidateIndex);
-        assertTrue(coveredByCandidate.contains(0));
+        int candidateIndex = 22;
+        Set<Integer> coveredByCandidate = environment.getSamplesForNonDominatedCandidate(candidateIndex);
+        assertTrue(coveredByCandidate.contains(2));
         assertTrue(coveredByCandidate.contains(3));
         assertTrue(coveredByCandidate.contains(4));
 
-        assertFalse(coveredByCandidate.contains(9));
+        assertFalse(coveredByCandidate.contains(8));
 
     }
 
@@ -80,7 +80,7 @@ public class SetCoveringEnvironmentTest {
     }
 
     @Test
-    void testValidateSolution() throws InvalidInputException {
+    void testValidateSolution() throws InvalidInputException, IOException {
         double[][] testRepresentation = {{0., 1., 0., 0.},
                 {1., 0., 1., 0.},
                 {0., 0., 1., 1.},
@@ -92,6 +92,12 @@ public class SetCoveringEnvironmentTest {
 
         Integer[] validSolution = {0, 1, 2, null};
         assertTrue(smallEnvironment.isValidSolution(validSolution));
+
+        String fileName = "AC_01_cover.txt";
+        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
+        SetCoveringEnvironment bigEnvironment = new SetCoveringEnvironment(problemRepresentation);
+        Integer[] validSolutionForBigEnvironment = {1114, 1999, 236, 2483, 817, 1366, 423, 49, 1188, 1007, 1980, 849, 775, 1494, 2069, 2596, 2739, 2466, 2221, 2852, 2583};
+        assertTrue(bigEnvironment.isValidSolution(validSolutionForBigEnvironment));
 
     }
 }

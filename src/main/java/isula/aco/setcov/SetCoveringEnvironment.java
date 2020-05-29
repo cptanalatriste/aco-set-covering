@@ -3,8 +3,9 @@ package isula.aco.setcov;
 import isula.aco.Environment;
 import isula.aco.exception.InvalidInputException;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -14,8 +15,12 @@ public class SetCoveringEnvironment extends Environment {
     private static Logger logger = Logger.getLogger(SetCoveringEnvironment.class.getName());
     public static final int COVERED = 1;
 
+    private final long preprocessTimeInSeconds;
+    private final SetCoveringPreProcessor preProcessor;
+
     public Set<Integer> dominatedCandidates;
     public Set<Integer> mandatoryCandidates;
+    private Map<Integer, Set<Integer>> samplesPerCandidate;
 
 
     /**
@@ -26,8 +31,20 @@ public class SetCoveringEnvironment extends Environment {
      */
     public SetCoveringEnvironment(double[][] problemRepresentation) throws InvalidInputException {
         super(problemRepresentation);
-        this.dominatedCandidates = this.findDominatedCandidates();
+
+        Instant preprocessStart = Instant.now();
+
+        this.preProcessor = new SetCoveringPreProcessor(this);
+
+        this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.getSamplesPerCandidate());
+        this.dominatedCandidates = preProcessor.getDominatedCandidates();
+        logger.info(dominatedCandidates.size() + " dominated candidates from " + this.getNumberOfCandidates());
+
         this.mandatoryCandidates = this.findMandatoryCandidates();
+
+        Instant preprocessEnd = Instant.now();
+        this.preprocessTimeInSeconds = Duration.between(preprocessStart, preprocessEnd).getSeconds();
+        logger.info("Pre-process finished in " + preprocessTimeInSeconds + " seconds.");
     }
 
     public Set<Integer> getMandatoryCandidates() {
@@ -35,6 +52,7 @@ public class SetCoveringEnvironment extends Environment {
     }
 
     private Set<Integer> findMandatoryCandidates() {
+
 
         Set<Integer> mandatoryCandidates = new HashSet<>();
 
@@ -54,37 +72,6 @@ public class SetCoveringEnvironment extends Environment {
         return this.dominatedCandidates;
     }
 
-    private Set<Integer> findDominatedCandidates() {
-
-        boolean[] dominatedChecklist = new boolean[this.getNumberOfCandidates()];
-
-        for (int candidateIndex = 0; candidateIndex < this.getNumberOfCandidates(); candidateIndex++) {
-            Set<Integer> candidateSamples = this.getSamplesCovered(candidateIndex);
-
-            for (int opponentIndex = candidateIndex + 1; opponentIndex < this.getNumberOfCandidates(); opponentIndex++) {
-
-                if (!dominatedChecklist[opponentIndex]) {
-                    Set<Integer> opponentSamples = this.getSamplesCovered(opponentIndex);
-
-                    if (opponentSamples.containsAll(candidateSamples)) {
-                        dominatedChecklist[candidateIndex] = true;
-                        break;
-                    } else if (candidateSamples.containsAll(opponentSamples)) {
-                        dominatedChecklist[opponentIndex] = true;
-                    }
-                }
-            }
-        }
-
-        Set<Integer> dominatedAsSet = IntStream.range(0, this.getNumberOfCandidates())
-                .filter(candidateIndex -> dominatedChecklist[candidateIndex])
-                .boxed()
-                .collect(Collectors.toSet());
-        logger.info(dominatedAsSet.size() + " dominated candidates from " + this.getNumberOfCandidates());
-
-        return dominatedAsSet;
-    }
-
     protected double[][] createPheromoneMatrix() {
         return new double[this.getNumberOfCandidates()][1];
     }
@@ -98,7 +85,7 @@ public class SetCoveringEnvironment extends Environment {
     }
 
     public Set<Integer> getCoveringCandidates(int sampleIndex) {
-        return getCoveringCandidates(sampleIndex, getAllCandidates());
+        return getCoveringCandidates(sampleIndex, getAllCandidatesStream());
     }
 
     private Set<Integer> getCoveringCandidates(int sampleIndex, IntStream candidateStream) {
@@ -109,23 +96,21 @@ public class SetCoveringEnvironment extends Environment {
                 .collect(Collectors.toSet());
     }
 
-    private IntStream getAllCandidates() {
+    public IntStream getAllCandidatesStream() {
         return IntStream.range(0, this.getNumberOfCandidates());
     }
 
 
-    public Set<Integer> getSamplesCovered(int candidateIndex) {
-
-        return IntStream.range(0, this.getNumberOfSamples())
-                .filter(sampleIndex -> this.getProblemRepresentation()[sampleIndex][candidateIndex] == COVERED)
-                .boxed()
-                .collect(Collectors.toSet());
-
-
+    public Set<Integer> getSamplesForNonDominatedCandidate(int candidateIndex) {
+        return this.samplesPerCandidate.get(candidateIndex);
     }
 
     public boolean isDominatedCandidate(int candidateIndex) {
         return this.dominatedCandidates.contains(candidateIndex);
+    }
+
+    public Map<Integer, Set<Integer>> getSamplesPerCandidate() {
+        return samplesPerCandidate;
     }
 
     public boolean isValidSolution(Integer[] solutionFound) {
@@ -135,7 +120,7 @@ public class SetCoveringEnvironment extends Environment {
         for (Integer candidateIndex : solutionFound) {
             if (candidateIndex != null) {
 
-                for (Integer sampleIndex : this.getSamplesCovered(candidateIndex)) {
+                for (Integer sampleIndex : this.preProcessor.getSamplesCovered(candidateIndex)) {
                     if (!samplesCovered[sampleIndex]) {
                         samplesCovered[sampleIndex] = true;
                         pendingSamples -= 1;
@@ -143,7 +128,24 @@ public class SetCoveringEnvironment extends Environment {
                 }
             }
         }
+        if (pendingSamples > 0) {
+            List<Integer> uncoveredSamples = IntStream.range(0, this.getNumberOfSamples())
+                    .filter((candidateIndex) -> !samplesCovered[candidateIndex])
+                    .boxed()
+                    .collect(Collectors.toList());
+            logger.warning("Solution does not cover " + pendingSamples + " samples");
+            logger.warning("Pending samples " + uncoveredSamples);
+        }
 
         return pendingSamples == 0;
+    }
+
+    @Override
+    public String toString() {
+        return "SetCoveringEnvironment{" +
+                "preprocessTimeInSeconds=" + preprocessTimeInSeconds +
+                ", dominatedCandidates.size()=" + dominatedCandidates.size() +
+                ", mandatoryCandidates.size()=" + mandatoryCandidates.size() +
+                "} " + super.toString();
     }
 }

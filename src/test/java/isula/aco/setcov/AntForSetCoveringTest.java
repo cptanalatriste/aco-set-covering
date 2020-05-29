@@ -33,7 +33,7 @@ public class AntForSetCoveringTest {
         assertFalse(ant.isSampleCovered(firstSampleCovered));
         assertFalse(ant.isSampleCovered(secondSampleCovered));
 
-        int candidateToVisit = 16;
+        int candidateToVisit = 22;
         ant.visitNode(candidateToVisit);
         assertTrue(ant.isSampleCovered(firstSampleCovered));
         assertTrue(ant.isSampleCovered(secondSampleCovered));
@@ -46,9 +46,12 @@ public class AntForSetCoveringTest {
 
         Assertions.assertThrows(RuntimeException.class, () -> ant.getSolutionCost(environment));
 
-        IntStream.range(0, environment.getNumberOfCandidates()).forEachOrdered(ant::visitNode);
+        IntStream.range(0, environment.getNumberOfCandidates())
+                .filter((candidateIndex) -> !environment.getDominatedCandidates().contains(candidateIndex))
+                .forEach(ant::visitNode);
 
-        assertEquals(environment.getNumberOfCandidates(), ant.getSolutionCost(environment));
+        double expectedCost = environment.getNumberOfCandidates() - environment.getDominatedCandidates().size();
+        assertEquals(expectedCost, ant.getSolutionCost(environment));
 
     }
 
@@ -60,7 +63,9 @@ public class AntForSetCoveringTest {
         int expectedNeighbourhood = environment.getNumberOfCandidates() - environment.getDominatedCandidates().size();
         assertEquals(expectedNeighbourhood, initialNeighbourHood.size());
 
-        IntStream.range(0, environment.getNumberOfCandidates()).forEachOrdered(ant::visitNode);
+        IntStream.range(0, environment.getNumberOfCandidates())
+                .filter((candidateIndex) -> !environment.getDominatedCandidates().contains(candidateIndex))
+                .forEach(ant::visitNode);
 
         assertEquals(0, ant.getNeighbourhood(environment).size());
     }

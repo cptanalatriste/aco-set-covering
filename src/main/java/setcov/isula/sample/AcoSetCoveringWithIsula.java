@@ -13,7 +13,8 @@ import isula.aco.tuning.AcoParameterTuner;
 import isula.aco.tuning.ParameterOptimisationTarget;
 
 import javax.naming.ConfigurationException;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,8 +40,9 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     public static void main(String... args) throws InvalidInputException, ConfigurationException, IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
+        int startingInstance = 1;
 
-        for (int instanceNumber = 1; instanceNumber < 33; instanceNumber += 1) {
+        for (int instanceNumber = startingInstance; instanceNumber < 33; instanceNumber += 1) {
             String instanceName = "AC_" + String.format("%02d", instanceNumber);
             String fileName = FileUtils.getInputFile(instanceName);
             double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
@@ -65,10 +67,10 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private BaseAntSystemConfiguration getOptimisedConfiguration(String instanceName) throws FileNotFoundException {
         List<Integer> numberOfAntsValues = Collections.singletonList(3);
-        List<Integer> numberOfIterationValues = Collections.singletonList(5);
+        List<Integer> numberOfIterationValues = Collections.singletonList(3);
+        List<Double> initialPheromoneValues = Collections.singletonList(1.0);
 
         List<Double> evaporationRatioValues = Arrays.asList(.1, .5, .9);
-        List<Double> initialPheromoneValues = Arrays.asList(1., 50., 100.);
         List<Double> heuristicImportanceValues = Arrays.asList(0., 2., 5.);
         List<Double> pheromoneImportanceValues = Arrays.asList(0.25, 2., 5.);
 
@@ -103,11 +105,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
         AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new AcoProblemSolver<>();
         problemSolver.initialize(environment, antColony, configurationProvider);
-        problemSolver.addDaemonActions(new StartPheromoneMatrix<>(),
-                new PerformEvaporation<>());
-
-        problemSolver.addDaemonActions(getPheromoneUpdatePolicy());
-        problemSolver.getAntColony().addAntPolicies(new RandomNodeSelection<>(), new ApplyLocalSearch());
+        configureAntSystem(problemSolver);
 
         problemSolver.solveProblem();
         Integer[] solutionFound = problemSolver.getBestSolution();
@@ -119,18 +117,12 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     }
 
+    private static void configureAntSystem(AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
 
-    private static DaemonAction<Integer, SetCoveringEnvironment> getPheromoneUpdatePolicy() {
-        return new OfflinePheromoneUpdate<>() {
-            @Override
-            protected double getPheromoneDeposit(Ant<Integer, SetCoveringEnvironment> ant, Integer positionInSolution,
-                                                 Integer solutionComponent, SetCoveringEnvironment environment,
-                                                 ConfigurationProvider configurationProvider) {
-
-                BaseAntSystemConfiguration setCoveringParameters = (BaseAntSystemConfiguration) configurationProvider;
-                return setCoveringParameters.getBasePheromoneValue() / ant.getSolutionCost(environment);
-            }
-        };
+        problemSolver.addDaemonActions(new StartPheromoneMatrix<>(),
+                new PerformEvaporation<>());
+        problemSolver.addDaemonActions(new OfflinePheromoneUpdate<>());
+        problemSolver.getAntColony().addAntPolicies(new RandomNodeSelection<>(), new ApplyLocalSearch());
     }
 
     private static AntColony<Integer, SetCoveringEnvironment> createAntColony(BaseAntSystemConfiguration configurationProvide) {
