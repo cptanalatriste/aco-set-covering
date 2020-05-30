@@ -16,7 +16,8 @@ public class AntForSetCoveringTest {
 
     public AntForSetCoveringTest() throws IOException {
         String fileName = "AC_10_cover.txt";
-        SetCoveringPreProcessor problemRepresentation = FileUtils.initialisePreProcessorFromFile(fileName);
+        SetCoveringPreProcessor problemRepresentation = FileUtils.initialisePreProcessorFromFile(
+                FileUtils.DATA_DIRECTORY + fileName);
         this.environment = new SetCoveringEnvironment(problemRepresentation);
     }
 

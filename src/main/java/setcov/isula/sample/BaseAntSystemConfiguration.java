@@ -7,7 +7,11 @@ import isula.aco.tuning.BasicConfigurationProvider;
 public class BaseAntSystemConfiguration extends BasicConfigurationProvider implements AntSystemConfigurationProvider {
 
 
-    private final double pheromoneDepositFactor;
+    private double pheromoneDepositFactor = 0.0;
+
+    public BaseAntSystemConfiguration() {
+
+    }
 
     public BaseAntSystemConfiguration(ConfigurationProvider configurationProvider) {
         super(configurationProvider);
@@ -31,6 +35,10 @@ public class BaseAntSystemConfiguration extends BasicConfigurationProvider imple
                 ", pheromoneImportance=" + getPheromoneImportance() +
                 ", pheromoneDepositFactor=" + pheromoneDepositFactor +
                 '}';
+    }
+
+    public void setPheromoneDepositFactor(double pheromoneDepositFactor) {
+        this.pheromoneDepositFactor = pheromoneDepositFactor;
     }
 
     @Override

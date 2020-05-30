@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +37,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
+    private static final Duration TIME_LIMIT = Duration.ofHours(1);
+    private static final List<String> processedFiles = Arrays.asList("AC_01", "AC_10", "AC_11");
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;
@@ -56,17 +59,23 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
         for (String fileName : fileNames) {
 
+            String instanceName = fileName.substring(fileName.length() - 15);
+            instanceName = instanceName.substring(0, 5);
+
+            if (!processedFiles.contains(instanceName)) {
+                logger.info("Skipping file " + fileName);
+                continue;
+            }
+
+            logger.info("Current instance: " + instanceName);
+
             SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
 
             SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor);
             AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
             acoSetCoveringWithIsula.currentProcessingFile = fileName;
-            String instanceName = fileName.substring(fileName.length() - 15);
-            instanceName = instanceName.substring(0, 5);
 
-            logger.info("Current instance: " + instanceName);
-            BaseAntSystemConfiguration configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration(instanceName);
-
+            BaseAntSystemConfiguration configurationProvider = getDefaultAntSystemConfiguration();
             configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
             configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
 
@@ -78,7 +87,17 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
             FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
 
         }
+    }
 
+    private static BaseAntSystemConfiguration getDefaultAntSystemConfiguration() {
+        BaseAntSystemConfiguration configurationProvider = new BaseAntSystemConfiguration();
+        configurationProvider.setInitialPheromoneValue(1.0);
+        configurationProvider.setPheromoneImportance(1.0);
+        configurationProvider.setEvaporationRatio(0.8);
+        configurationProvider.setHeuristicImportance(5.0);
+        configurationProvider.setPheromoneDepositFactor(1.0);
+
+        return configurationProvider;
     }
 
 
@@ -122,7 +141,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         AntColony<Integer, SetCoveringEnvironment> antColony = createAntColony(configurationProvider);
 
         AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new AcoProblemSolver<>();
-        problemSolver.initialize(environment, antColony, configurationProvider);
+        problemSolver.initialize(environment, antColony, configurationProvider, TIME_LIMIT);
         configureAntSystem(problemSolver);
 
         problemSolver.solveProblem();
