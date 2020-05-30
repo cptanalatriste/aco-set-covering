@@ -62,7 +62,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
             String instanceName = fileName.substring(fileName.length() - 15);
             instanceName = instanceName.substring(0, 5);
 
-            if (!processedFiles.contains(instanceName)) {
+            if (processedFiles.contains(instanceName)) {
                 logger.info("Skipping file " + fileName);
                 continue;
             }
