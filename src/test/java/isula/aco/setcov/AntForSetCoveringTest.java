@@ -16,7 +16,7 @@ public class AntForSetCoveringTest {
 
     public AntForSetCoveringTest() throws IOException {
         String fileName = "AC_10_cover.txt";
-        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
+        SetCoveringPreProcessor problemRepresentation = FileUtils.initialisePreProcessorFromFile(fileName);
         this.environment = new SetCoveringEnvironment(problemRepresentation);
     }
 
@@ -94,11 +94,16 @@ public class AntForSetCoveringTest {
 
     @Test
     void testClear() {
-        double[][] testRepresentation = {{0., 1., 0., 0.},
-                {1., 0., 1., 0.},
-                {0., 0., 1., 1.},
-                {1., 0., 0., 1.}};
-        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        preProcessor.setNumberOfSamples(4);
+        preProcessor.setNumberOfCandidates(4);
+        preProcessor.addCandidatesForSample(0, new String[]{"1"});
+        preProcessor.addCandidatesForSample(1, new String[]{"0", "2"});
+        preProcessor.addCandidatesForSample(2, new String[]{"2", "3"});
+        preProcessor.addCandidatesForSample(3, new String[]{"0", "3"});
+
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
         AntForSetCovering ant = new AntForSetCovering(smallEnvironment);
         ant.clear();
 

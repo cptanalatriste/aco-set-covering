@@ -1,5 +1,7 @@
 package setcov.isula.sample;
 
+import isula.aco.setcov.SetCoveringPreProcessor;
+
 import java.io.*;
 import java.util.List;
 import java.util.logging.Logger;
@@ -50,12 +52,12 @@ public class FileUtils {
         return TEAM_NAME + "_" + algorithmName + "_Track1_" + instanceName + ".txt";
     }
 
-    public static double[][] getRepresentationFromFile(String fileName) throws IOException {
+    public static SetCoveringPreProcessor initialisePreProcessorFromFile(String fileName) throws IOException {
 
         int numberOfSamples;
         int numberOfCandidates;
 
-        double[][] problemRepresentation = null;
+        SetCoveringPreProcessor dataPreProcessor = new SetCoveringPreProcessor();
 
         int lineCounter = 0;
         int sampleIndex = UNASSIGNED;
@@ -68,7 +70,10 @@ public class FileUtils {
                 if (lineCounter == 0) {
                     numberOfSamples = Integer.parseInt(tokens[0]);
                     numberOfCandidates = Integer.parseInt(tokens[1]);
-                    problemRepresentation = new double[numberOfSamples][numberOfCandidates];
+
+                    dataPreProcessor.setNumberOfCandidates(numberOfCandidates);
+                    dataPreProcessor.setNumberOfSamples(numberOfSamples);
+
                 } else if (sampleIndex == UNASSIGNED && tokens.length == 1) {
                     sampleIndex = Integer.parseInt(tokens[0]);
                 } else if (sampleIndex != UNASSIGNED && candidatesForSample == UNASSIGNED && tokens.length == 1) {
@@ -80,10 +85,7 @@ public class FileUtils {
                                 + " .Currently in file: " + tokens.length);
                     }
 
-                    for (String currentToken : tokens) {
-                        int candidateIndex = Integer.parseInt(currentToken);
-                        problemRepresentation[sampleIndex][candidateIndex] = COVERED;
-                    }
+                    dataPreProcessor.addCandidatesForSample(sampleIndex, tokens);
 
                     sampleIndex = UNASSIGNED;
                     candidatesForSample = UNASSIGNED;
@@ -93,6 +95,6 @@ public class FileUtils {
         }
 
         logger.info("Problem information gathered from: " + fileName);
-        return problemRepresentation;
+        return dataPreProcessor;
     }
 }

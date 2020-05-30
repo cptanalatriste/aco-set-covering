@@ -12,41 +12,41 @@ import java.util.stream.IntStream;
 public class SetCoveringEnvironment extends Environment {
 
     private static final Logger logger = Logger.getLogger(SetCoveringEnvironment.class.getName());
-    public static final int COVERED = 1;
 
     private final long preprocessTimeInSeconds;
-    private final SetCoveringPreProcessor preProcessor;
 
     public final Set<Integer> dominatedCandidates;
     public final Set<Integer> mandatoryCandidates;
     private final Map<Integer, Set<Integer>> samplesPerCandidate;
+    private final Map<Integer, Set<Integer>> candidatesPerSample;
 
-    private final double[][] problemRepresentation;
+    private int numberOfCandidates;
+    private int numberOfSamples;
 
 
     /**
      * Creates an Environment for the Ants to traverse.
-     *
-     * @param problemRepresentation Graph representation of the problem to be solved.
      */
-    public SetCoveringEnvironment(double[][] problemRepresentation) {
+    public SetCoveringEnvironment(SetCoveringPreProcessor preProcessor) {
         super();
-        this.problemRepresentation = problemRepresentation;
-        this.setPheromoneMatrix(this.createPheromoneMatrix());
 
         Instant preprocessStart = Instant.now();
 
-        this.preProcessor = new SetCoveringPreProcessor(this);
+        this.numberOfCandidates = preProcessor.getNumberOfCandidates();
+        this.numberOfSamples = preProcessor.getNumberOfSamples();
 
+        this.candidatesPerSample = preProcessor.getCandidatesPerSample();
+        this.dominatedCandidates = preProcessor.findDominatedCandidates();
         this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.getSamplesPerCandidate());
-        this.dominatedCandidates = preProcessor.getDominatedCandidates();
-        logger.info(dominatedCandidates.size() + " dominated candidates from " + this.getNumberOfCandidates());
 
+        logger.info(dominatedCandidates.size() + " dominated candidates from " + this.getNumberOfCandidates());
         this.mandatoryCandidates = this.findMandatoryCandidates();
 
         Instant preprocessEnd = Instant.now();
         this.preprocessTimeInSeconds = Duration.between(preprocessStart, preprocessEnd).getSeconds();
         logger.info("Pre-process finished in " + preprocessTimeInSeconds + " seconds.");
+
+        this.setPheromoneMatrix(this.createPheromoneMatrix());
     }
 
     public Set<Integer> getMandatoryCandidates() {
@@ -76,37 +76,24 @@ public class SetCoveringEnvironment extends Environment {
 
     protected double[][] createPheromoneMatrix() {
 
-        if (this.problemRepresentation != null) {
-            return new double[this.getNumberOfCandidates()][1];
+        if (this.numberOfCandidates != 0) {
+            return new double[this.numberOfCandidates][1];
         }
 
         return null;
     }
 
     public int getNumberOfCandidates() {
-        return problemRepresentation[0].length;
+        return numberOfCandidates;
     }
 
     public int getNumberOfSamples() {
-        return this.problemRepresentation.length;
+        return this.numberOfSamples;
     }
 
     public Set<Integer> getCoveringCandidates(int sampleIndex) {
-        return getCoveringCandidates(sampleIndex, getAllCandidatesStream());
+        return this.candidatesPerSample.get(sampleIndex);
     }
-
-    private Set<Integer> getCoveringCandidates(int sampleIndex, IntStream candidateStream) {
-        return candidateStream
-                .filter(candidateIndex -> !this.isDominatedCandidate(candidateIndex) &&
-                        this.problemRepresentation[sampleIndex][candidateIndex] == COVERED)
-                .boxed()
-                .collect(Collectors.toSet());
-    }
-
-    public IntStream getAllCandidatesStream() {
-        return IntStream.range(0, this.getNumberOfCandidates());
-    }
-
 
     public Set<Integer> getSamplesForNonDominatedCandidate(int candidateIndex) {
         return this.samplesPerCandidate.get(candidateIndex);
@@ -127,7 +114,7 @@ public class SetCoveringEnvironment extends Environment {
         for (Integer candidateIndex : solutionFound) {
             if (candidateIndex != null) {
 
-                for (Integer sampleIndex : this.preProcessor.getSamplesCovered(candidateIndex)) {
+                for (Integer sampleIndex : this.samplesPerCandidate.get(candidateIndex)) {
                     if (!samplesCovered[sampleIndex]) {
                         samplesCovered[sampleIndex] = true;
                         pendingSamples -= 1;
@@ -154,9 +141,5 @@ public class SetCoveringEnvironment extends Environment {
                 ", dominatedCandidates.size()=" + dominatedCandidates.size() +
                 ", mandatoryCandidates.size()=" + mandatoryCandidates.size() +
                 "} " + super.toString();
-    }
-
-    public double[][] getProblemRepresentation() {
-        return this.problemRepresentation;
     }
 }

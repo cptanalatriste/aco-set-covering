@@ -11,6 +11,7 @@ import isula.aco.algorithms.antsystem.StartPheromoneMatrix;
 import isula.aco.setcov.AntForSetCovering;
 import isula.aco.setcov.ApplyLocalSearch;
 import isula.aco.setcov.SetCoveringEnvironment;
+import isula.aco.setcov.SetCoveringPreProcessor;
 import isula.aco.tuning.AcoParameterTuner;
 import isula.aco.tuning.ParameterOptimisationTarget;
 
@@ -47,15 +48,15 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 //        int finalInstance = 32;
 
         String prefix = "AC_";
-        int startingInstance = 1;
-        int finalInstance = 1;
+        int startingInstance = 5;
+        int finalInstance = 5;
 
         for (int instanceNumber = startingInstance; instanceNumber <= finalInstance; instanceNumber += 1) {
             String instanceName = prefix + String.format("%02d", instanceNumber);
             String fileName = FileUtils.getInputFile(instanceName);
-            double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
+            SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
 
-            SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(problemRepresentation);
+            SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor);
             AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
             BaseAntSystemConfiguration configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration(instanceName);
 

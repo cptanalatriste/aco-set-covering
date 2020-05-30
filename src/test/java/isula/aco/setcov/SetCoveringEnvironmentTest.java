@@ -1,6 +1,5 @@
 package isula.aco.setcov;
 
-import isula.aco.exception.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import setcov.isula.sample.FileUtils;
 
@@ -17,8 +16,8 @@ public class SetCoveringEnvironmentTest {
 
     public SetCoveringEnvironmentTest() throws IOException {
         String fileName = "AC_10_cover.txt";
-        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
-        this.environment = new SetCoveringEnvironment(problemRepresentation);
+        SetCoveringPreProcessor preProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
+        this.environment = new SetCoveringEnvironment(preProcessor);
     }
 
     @Test
@@ -48,12 +47,14 @@ public class SetCoveringEnvironmentTest {
 
         assertTrue(this.environment.getDominatedCandidates().size() <= this.environment.getNumberOfCandidates());
 
-
-        double[][] testRepresentation = {{1., 0., 0., 0.},
-                {1., 0., 1., 1.},
-                {1., 1., 1., 1.},
-                {0., 1., 0., 1.}};
-        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        preProcessor.setNumberOfSamples(4);
+        preProcessor.setNumberOfCandidates(4);
+        preProcessor.addCandidatesForSample(0, new String[]{"0"});
+        preProcessor.addCandidatesForSample(1, new String[]{"0", "2", "3"});
+        preProcessor.addCandidatesForSample(2, new String[]{"0", "1", "2", "3"});
+        preProcessor.addCandidatesForSample(3, new String[]{"1", "3"});
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
 
         Set<Integer> dominatedCandidates = smallEnvironment.getDominatedCandidates();
 
@@ -69,11 +70,15 @@ public class SetCoveringEnvironmentTest {
     @Test
     public void getMandatoryCandidates() {
 
-        double[][] testRepresentation = {{0., 1., 0., 0.},
-                {1., 0., 1., 0.},
-                {0., 0., 1., 1.},
-                {1., 0., 0., 1.}};
-        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        preProcessor.setNumberOfSamples(4);
+        preProcessor.setNumberOfCandidates(4);
+        preProcessor.addCandidatesForSample(0, new String[]{"1"});
+        preProcessor.addCandidatesForSample(1, new String[]{"0", "2"});
+        preProcessor.addCandidatesForSample(2, new String[]{"2", "3"});
+        preProcessor.addCandidatesForSample(3, new String[]{"0", "3"});
+
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
         Set<Integer> mandatoryCandidates = smallEnvironment.getMandatoryCandidates();
 
         assertEquals(1, mandatoryCandidates.size());
@@ -83,11 +88,16 @@ public class SetCoveringEnvironmentTest {
 
     @Test
     void testValidateSolution() throws IOException {
-        double[][] testRepresentation = {{0., 1., 0., 0.},
-                {1., 0., 1., 0.},
-                {0., 0., 1., 1.},
-                {1., 0., 0., 1.}};
-        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        preProcessor.setNumberOfSamples(4);
+        preProcessor.setNumberOfCandidates(4);
+        preProcessor.addCandidatesForSample(0, new String[]{"1"});
+        preProcessor.addCandidatesForSample(1, new String[]{"0", "2"});
+        preProcessor.addCandidatesForSample(2, new String[]{"2", "3"});
+        preProcessor.addCandidatesForSample(3, new String[]{"0", "3"});
+
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
 
         List<Integer> invalidSolution = Arrays.asList(3, 1, null, null);
         assertFalse(smallEnvironment.isValidSolution(invalidSolution));
@@ -95,12 +105,12 @@ public class SetCoveringEnvironmentTest {
         List<Integer> validSolution = Arrays.asList(0, 1, 2, null);
         assertTrue(smallEnvironment.isValidSolution(validSolution));
 
-        String fileName = "AC_01_cover.txt";
-        double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
-        SetCoveringEnvironment bigEnvironment = new SetCoveringEnvironment(problemRepresentation);
-        List<Integer> validSolutionForBigEnvironment = Arrays.asList(1114, 1999, 236, 2483, 817, 1366, 423, 49, 1188,
-                1007, 1980, 849, 775, 1494, 2069, 2596, 2739, 2466, 2221, 2852, 2583);
-        assertTrue(bigEnvironment.isValidSolution(validSolutionForBigEnvironment));
+//        String fileName = "AC_01_cover.txt";
+//        preProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
+//        SetCoveringEnvironment bigEnvironment = new SetCoveringEnvironment(preProcessor);
+//        List<Integer> validSolutionForBigEnvironment = Arrays.asList(1114, 1999, 236, 2483, 817, 1366, 423, 49, 1188,
+//                1007, 1980, 849, 775, 1494, 2069, 2596, 2739, 2466, 2221, 2852, 2583);
+//        assertTrue(bigEnvironment.isValidSolution(validSolutionForBigEnvironment));
 
     }
 }

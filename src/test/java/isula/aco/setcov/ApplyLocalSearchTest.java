@@ -10,13 +10,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ApplyLocalSearchTest {
 
     @Test
-    void testApplyPolicy()  {
+    void testApplyPolicy() {
 
-        double[][] testRepresentation = {{0., 1., 0., 0., 1.},
-                {1., 0., 1., 0., 1.},
-                {0., 0., 1., 1., 0.},
-                {1., 0., 0., 1., 0.}};
-        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(testRepresentation);
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        preProcessor.setNumberOfSamples(4);
+        preProcessor.setNumberOfCandidates(5);
+        preProcessor.addCandidatesForSample(0, new String[]{"1", "4"});
+        preProcessor.addCandidatesForSample(1, new String[]{"0", "2", "4"});
+        preProcessor.addCandidatesForSample(2, new String[]{"2", "3"});
+        preProcessor.addCandidatesForSample(3, new String[]{"0", "3"});
+
+
+        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
         AntForSetCovering ant = new AntForSetCovering(smallEnvironment);
         IntStream.range(0, smallEnvironment.getNumberOfCandidates())
                 .filter((index) -> index != 1)
