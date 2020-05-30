@@ -107,32 +107,6 @@ public class SetCoveringEnvironment extends Environment {
         return samplesPerCandidate;
     }
 
-    public boolean isValidSolution(List<Integer> solutionFound) {
-        boolean[] samplesCovered = new boolean[this.getNumberOfSamples()];
-        int pendingSamples = this.getNumberOfSamples();
-
-        for (Integer candidateIndex : solutionFound) {
-            if (candidateIndex != null) {
-
-                for (Integer sampleIndex : this.samplesPerCandidate.get(candidateIndex)) {
-                    if (!samplesCovered[sampleIndex]) {
-                        samplesCovered[sampleIndex] = true;
-                        pendingSamples -= 1;
-                    }
-                }
-            }
-        }
-        if (pendingSamples > 0) {
-            List<Integer> uncoveredSamples = IntStream.range(0, this.getNumberOfSamples())
-                    .filter((candidateIndex) -> !samplesCovered[candidateIndex])
-                    .boxed()
-                    .collect(Collectors.toList());
-            logger.warning("Solution does not cover " + pendingSamples + " samples");
-            logger.warning("Pending samples " + uncoveredSamples);
-        }
-
-        return pendingSamples == 0;
-    }
 
     @Override
     public String toString() {

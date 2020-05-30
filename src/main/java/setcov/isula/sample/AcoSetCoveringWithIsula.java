@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static setcov.isula.sample.FileUtils.isValidSolution;
 import static setcov.isula.sample.FileUtils.writeObjectToFile;
 
 public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
@@ -34,6 +35,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final int NUMBER_OF_ITERATIONS = 10;
 
     private final SetCoveringEnvironment setCoveringEnvironment;
+    private String currentProcessingFile;
 
     public AcoSetCoveringWithIsula(SetCoveringEnvironment setCoveringEnvironment) {
         this.setCoveringEnvironment = setCoveringEnvironment;
@@ -58,12 +60,14 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
             SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor);
             AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
+            acoSetCoveringWithIsula.currentProcessingFile = fileName;
             BaseAntSystemConfiguration configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration(instanceName);
 
             configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
             configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
 
-            AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment, configurationProvider);
+            AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment,
+                    configurationProvider, fileName);
             writeObjectToFile(instanceName + "_solver.txt", problemSolver);
 
             List<Integer> solutionFound = problemSolver.getBestSolution();
@@ -98,7 +102,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         BaseAntSystemConfiguration baseAntSystemConfiguration = new BaseAntSystemConfiguration(configurationProvider);
         AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = null;
         try {
-            problemSolver = solveProblem(this.setCoveringEnvironment, baseAntSystemConfiguration);
+            problemSolver = solveProblem(this.setCoveringEnvironment, baseAntSystemConfiguration, currentProcessingFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,7 +112,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(SetCoveringEnvironment environment,
                                                                                   BaseAntSystemConfiguration
-                                                                                          configurationProvider) throws ConfigurationException {
+                                                                                          configurationProvider,
+                                                                                  String fileName) throws ConfigurationException, IOException {
 
         AntColony<Integer, SetCoveringEnvironment> antColony = createAntColony(configurationProvider);
 
@@ -118,7 +123,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
         problemSolver.solveProblem();
         List<Integer> solutionFound = problemSolver.getBestSolution();
-        if (!environment.isValidSolution(solutionFound)) {
+        if (!isValidSolution(solutionFound, fileName)) {
             throw new RuntimeException("The solution found is not valid :(");
         }
 

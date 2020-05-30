@@ -3,8 +3,12 @@ package setcov.isula.sample;
 import isula.aco.setcov.SetCoveringPreProcessor;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FileUtils {
 
@@ -12,7 +16,6 @@ public class FileUtils {
     private static final String DATA_DIRECTORY = "/Users/cgavidia/Documents/data/";
 
     private static final int UNASSIGNED = -1;
-    private static final double COVERED = 1.0;
     private static final String TEAM_NAME = "Isula";
 
     static void writeSolutionToFile(String instanceName, String algorithmName, List<Integer> solutionFound) throws FileNotFoundException {
@@ -50,6 +53,41 @@ public class FileUtils {
 
     private static String getOutputFile(String instanceName, String algorithmName) {
         return TEAM_NAME + "_" + algorithmName + "_Track1_" + instanceName + ".txt";
+    }
+
+    public static boolean isValidSolution(List<Integer> solutionFound, String fileName) throws IOException {
+        SetCoveringPreProcessor preProcessor = initialisePreProcessorFromFile(fileName);
+        return isValidSolution(solutionFound, preProcessor);
+    }
+
+
+    public static boolean isValidSolution(List<Integer> solutionFound, SetCoveringPreProcessor preProcessor) {
+        HashMap<Integer, Set<Integer>> samplesPerCandidate = preProcessor.calculateSamplesPerCandidate();
+
+        boolean[] samplesCovered = new boolean[preProcessor.getNumberOfSamples()];
+        int pendingSamples = preProcessor.getNumberOfSamples();
+
+        for (Integer candidateIndex : solutionFound) {
+            if (candidateIndex != null) {
+
+                for (Integer sampleIndex : samplesPerCandidate.get(candidateIndex)) {
+                    if (!samplesCovered[sampleIndex]) {
+                        samplesCovered[sampleIndex] = true;
+                        pendingSamples -= 1;
+                    }
+                }
+            }
+        }
+        if (pendingSamples > 0) {
+            List<Integer> uncoveredSamples = IntStream.range(0, preProcessor.getNumberOfSamples())
+                    .filter((candidateIndex) -> !samplesCovered[candidateIndex])
+                    .boxed()
+                    .collect(Collectors.toList());
+            logger.warning("Solution does not cover " + pendingSamples + " samples");
+            logger.warning("Pending samples " + uncoveredSamples);
+        }
+
+        return pendingSamples == 0;
     }
 
     public static SetCoveringPreProcessor initialisePreProcessorFromFile(String fileName) throws IOException {

@@ -26,7 +26,7 @@ public class SetCoveringPreProcessor {
                 .collect(Collectors.toUnmodifiableSet()));
     }
 
-    private HashMap<Integer, Set<Integer>> calculateSamplesPerCandidate() {
+    public HashMap<Integer, Set<Integer>> calculateSamplesPerCandidate() {
 
         HashMap<Integer, Set<Integer>> samplesPerCandidate = new HashMap<>();
 

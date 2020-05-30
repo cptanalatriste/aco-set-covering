@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static setcov.isula.sample.FileUtils.isValidSolution;
 
 class ApplyLocalSearchTest {
 
@@ -33,9 +34,9 @@ class ApplyLocalSearchTest {
         localSearchPolicy.applyPolicy(smallEnvironment, null);
 
         List<Integer> improvedSolution = ant.getSolution();
-        assertTrue(smallEnvironment.isValidSolution(improvedSolution));
+        assertTrue(isValidSolution(improvedSolution, preProcessor));
         assertTrue(ant.getSolutionCost(smallEnvironment) < originalCost);
-        assertTrue(smallEnvironment.isValidSolution(improvedSolution));
+        assertTrue(isValidSolution(improvedSolution, preProcessor));
 
     }
 }
