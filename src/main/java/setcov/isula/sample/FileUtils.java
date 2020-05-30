@@ -1,18 +1,19 @@
 package setcov.isula.sample;
 
 import java.io.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class FileUtils {
 
-    private static Logger logger = Logger.getLogger(FileUtils.class.getName());
-    private static String DATA_DIRECTORY = "/Users/cgavidia/Documents/data/";
+    private static final Logger logger = Logger.getLogger(FileUtils.class.getName());
+    private static final String DATA_DIRECTORY = "/Users/cgavidia/Documents/data/";
 
     private static final int UNASSIGNED = -1;
     private static final double COVERED = 1.0;
     private static final String TEAM_NAME = "Isula";
 
-    static void writeSolutionToFile(String instanceName, String algorithmName, Integer[] solutionFound) throws FileNotFoundException {
+    static void writeSolutionToFile(String instanceName, String algorithmName, List<Integer> solutionFound) throws FileNotFoundException {
         String outputFile = getOutputFile(instanceName, algorithmName);
         PrintWriter printWriter = new PrintWriter(outputFile);
 

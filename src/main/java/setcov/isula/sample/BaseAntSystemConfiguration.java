@@ -7,7 +7,7 @@ import isula.aco.tuning.BasicConfigurationProvider;
 public class BaseAntSystemConfiguration extends BasicConfigurationProvider implements AntSystemConfigurationProvider {
 
 
-    private double pheromoneDepositFactor;
+    private final double pheromoneDepositFactor;
 
     public BaseAntSystemConfiguration(ConfigurationProvider configurationProvider) {
         super(configurationProvider);

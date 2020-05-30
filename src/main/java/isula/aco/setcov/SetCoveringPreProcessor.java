@@ -11,8 +11,8 @@ import static isula.aco.setcov.SetCoveringEnvironment.COVERED;
 public class SetCoveringPreProcessor {
 
     private final SetCoveringEnvironment environment;
-    private HashMap<Integer, Set<Integer>> samplesPerCandidate;
-    private Set<Integer> dominatedCandidates;
+    private final HashMap<Integer, Set<Integer>> samplesPerCandidate;
+    private final Set<Integer> dominatedCandidates;
 
     public SetCoveringPreProcessor(SetCoveringEnvironment environment) {
         this.environment = environment;

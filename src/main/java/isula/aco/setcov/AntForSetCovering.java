@@ -9,35 +9,31 @@ import java.util.stream.IntStream;
 
 public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
-    private final Set<Integer> mandatoryCandidates;
+    private final SetCoveringEnvironment environment;
     private boolean[] samplesCovered;
-    private Map<Integer, Set<Integer>> samplesPerCandidate;
-    private int numberOfSamples;
 
 
     public AntForSetCovering(SetCoveringEnvironment environment) {
         super();
 
-        this.numberOfSamples = environment.getNumberOfSamples();
-        this.samplesCovered = new boolean[numberOfSamples];
-        this.samplesPerCandidate = environment.getSamplesPerCandidate();
-        this.mandatoryCandidates = environment.getMandatoryCandidates();
+        this.environment = environment;
+        this.samplesCovered = new boolean[environment.getNumberOfSamples()];
 
-        this.setSolution(new Integer[environment.getNumberOfCandidates()]);
+        this.setSolution(new ArrayList<>());
     }
 
     @Override
     public void clear() {
         super.clear();
-        this.samplesCovered = new boolean[numberOfSamples];
-        this.mandatoryCandidates.forEach(this::visitNode);
+        this.samplesCovered = new boolean[environment.getNumberOfSamples()];
+        this.environment.getMandatoryCandidates().forEach((candidateIndex) -> this.visitNode(candidateIndex, this.environment));
     }
 
     @Override
-    public void visitNode(Integer candidateIndex) {
-        super.visitNode(candidateIndex);
+    public void visitNode(Integer candidateIndex, SetCoveringEnvironment environment) {
+        super.visitNode(candidateIndex, environment);
 
-        Set<Integer> candidateSamples = samplesPerCandidate.get(candidateIndex);
+        Set<Integer> candidateSamples = environment.getSamplesPerCandidate().get(candidateIndex);
 
         if (candidateSamples == null) {
             throw new SolutionConstructionException("Candidate " + candidateIndex + " is dominated.");
@@ -60,12 +56,12 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
                 .filter(coveredByCandidate::contains)
                 .collect(Collectors.toSet());
 
-        return commonElements.size() / (double) this.numberOfSamples;
+        return commonElements.size() / (double) this.environment.getNumberOfSamples();
     }
 
     private Set<Integer> getUncoveredSamples() {
 
-        return IntStream.range(0, this.numberOfSamples)
+        return IntStream.range(0, this.environment.getNumberOfSamples())
                 .filter(sampleIndex -> !this.samplesCovered[sampleIndex])
                 .boxed()
                 .collect(Collectors.toSet());
@@ -76,7 +72,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
             throw new RuntimeException("Cannot calculate cost of an incomplete solution");
         }
 
-        return Math.toIntExact(Arrays.stream(getSolution()).filter(Objects::nonNull).count());
+        return Math.toIntExact(getSolution().stream().filter(Objects::nonNull).count());
     }
 
     public boolean isSolutionReady(SetCoveringEnvironment environment) {

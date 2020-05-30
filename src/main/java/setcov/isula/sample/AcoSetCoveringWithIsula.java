@@ -1,11 +1,13 @@
 package setcov.isula.sample;
 
-import isula.aco.*;
+import isula.aco.AcoProblemSolver;
+import isula.aco.Ant;
+import isula.aco.AntColony;
+import isula.aco.ConfigurationProvider;
 import isula.aco.algorithms.antsystem.OfflinePheromoneUpdate;
 import isula.aco.algorithms.antsystem.PerformEvaporation;
 import isula.aco.algorithms.antsystem.RandomNodeSelection;
 import isula.aco.algorithms.antsystem.StartPheromoneMatrix;
-import isula.aco.exception.InvalidInputException;
 import isula.aco.setcov.AntForSetCovering;
 import isula.aco.setcov.ApplyLocalSearch;
 import isula.aco.setcov.SetCoveringEnvironment;
@@ -24,26 +26,32 @@ import static setcov.isula.sample.FileUtils.writeObjectToFile;
 
 public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
-    private static Logger logger = Logger.getLogger(AcoSetCoveringWithIsula.class.getName());
+    private static final Logger logger = Logger.getLogger(AcoSetCoveringWithIsula.class.getName());
 
 
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
 
-    private SetCoveringEnvironment setCoveringEnvironment;
+    private final SetCoveringEnvironment setCoveringEnvironment;
 
     public AcoSetCoveringWithIsula(SetCoveringEnvironment setCoveringEnvironment) {
         this.setCoveringEnvironment = setCoveringEnvironment;
     }
 
 
-    public static void main(String... args) throws InvalidInputException, ConfigurationException, IOException {
+    public static void main(String... args) throws ConfigurationException, IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
-        int startingInstance = 1;
+//        String prefix = "RW_";
+//        int startingInstance = 1;
+//        int finalInstance = 32;
 
-        for (int instanceNumber = startingInstance; instanceNumber < 33; instanceNumber += 1) {
-            String instanceName = "AC_" + String.format("%02d", instanceNumber);
+        String prefix = "AC_";
+        int startingInstance = 1;
+        int finalInstance = 1;
+
+        for (int instanceNumber = startingInstance; instanceNumber <= finalInstance; instanceNumber += 1) {
+            String instanceName = prefix + String.format("%02d", instanceNumber);
             String fileName = FileUtils.getInputFile(instanceName);
             double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
 
@@ -57,7 +65,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
             AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment, configurationProvider);
             writeObjectToFile(instanceName + "_solver.txt", problemSolver);
 
-            Integer[] solutionFound = problemSolver.getBestSolution();
+            List<Integer> solutionFound = problemSolver.getBestSolution();
             FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
 
         }
@@ -108,7 +116,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         configureAntSystem(problemSolver);
 
         problemSolver.solveProblem();
-        Integer[] solutionFound = problemSolver.getBestSolution();
+        List<Integer> solutionFound = problemSolver.getBestSolution();
         if (!environment.isValidSolution(solutionFound)) {
             throw new RuntimeException("The solution found is not valid :(");
         }

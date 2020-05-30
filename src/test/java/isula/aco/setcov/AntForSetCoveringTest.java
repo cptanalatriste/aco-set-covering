@@ -1,6 +1,5 @@
 package isula.aco.setcov;
 
-import isula.aco.exception.InvalidInputException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import setcov.isula.sample.FileUtils;
@@ -8,7 +7,6 @@ import setcov.isula.sample.FileUtils;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +14,7 @@ public class AntForSetCoveringTest {
 
     private final SetCoveringEnvironment environment;
 
-    public AntForSetCoveringTest() throws IOException, InvalidInputException {
+    public AntForSetCoveringTest() throws IOException {
         String fileName = "AC_10_cover.txt";
         double[][] problemRepresentation = FileUtils.getRepresentationFromFile(fileName);
         this.environment = new SetCoveringEnvironment(problemRepresentation);
@@ -34,7 +32,7 @@ public class AntForSetCoveringTest {
         assertFalse(ant.isSampleCovered(secondSampleCovered));
 
         int candidateToVisit = 22;
-        ant.visitNode(candidateToVisit);
+        ant.visitNode(candidateToVisit, this.environment);
         assertTrue(ant.isSampleCovered(firstSampleCovered));
         assertTrue(ant.isSampleCovered(secondSampleCovered));
 
@@ -46,9 +44,12 @@ public class AntForSetCoveringTest {
 
         Assertions.assertThrows(RuntimeException.class, () -> ant.getSolutionCost(environment));
 
-        IntStream.range(0, environment.getNumberOfCandidates())
-                .filter((candidateIndex) -> !environment.getDominatedCandidates().contains(candidateIndex))
-                .forEach(ant::visitNode);
+        int bound = environment.getNumberOfCandidates();
+        for (int candidateIndex = 0; candidateIndex < bound; candidateIndex++) {
+            if (!environment.getDominatedCandidates().contains(candidateIndex)) {
+                ant.visitNode(candidateIndex, this.environment);
+            }
+        }
 
         double expectedCost = environment.getNumberOfCandidates() - environment.getDominatedCandidates().size();
         assertEquals(expectedCost, ant.getSolutionCost(environment));
@@ -63,9 +64,12 @@ public class AntForSetCoveringTest {
         int expectedNeighbourhood = environment.getNumberOfCandidates() - environment.getDominatedCandidates().size();
         assertEquals(expectedNeighbourhood, initialNeighbourHood.size());
 
-        IntStream.range(0, environment.getNumberOfCandidates())
-                .filter((candidateIndex) -> !environment.getDominatedCandidates().contains(candidateIndex))
-                .forEach(ant::visitNode);
+        int bound = environment.getNumberOfCandidates();
+        for (int candidateIndex = 0; candidateIndex < bound; candidateIndex++) {
+            if (!environment.getDominatedCandidates().contains(candidateIndex)) {
+                ant.visitNode(candidateIndex, this.environment);
+            }
+        }
 
         assertEquals(0, ant.getNeighbourhood(environment).size());
     }
@@ -89,7 +93,7 @@ public class AntForSetCoveringTest {
     }
 
     @Test
-    void testClear() throws InvalidInputException {
+    void testClear() {
         double[][] testRepresentation = {{0., 1., 0., 0.},
                 {1., 0., 1., 0.},
                 {0., 0., 1., 1.},
@@ -98,7 +102,7 @@ public class AntForSetCoveringTest {
         AntForSetCovering ant = new AntForSetCovering(smallEnvironment);
         ant.clear();
 
-        assertEquals(1, ant.getSolution()[0]);
+        assertEquals(1, ant.getSolution().get(0));
         assertEquals(1, ant.getCurrentIndex());
 
         List<Integer> neighbourhood = Arrays.asList(0, 2, 3);

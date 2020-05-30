@@ -1,7 +1,6 @@
 package isula.aco.setcov;
 
 import isula.aco.Environment;
-import isula.aco.exception.InvalidInputException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -12,25 +11,28 @@ import java.util.stream.IntStream;
 
 public class SetCoveringEnvironment extends Environment {
 
-    private static Logger logger = Logger.getLogger(SetCoveringEnvironment.class.getName());
+    private static final Logger logger = Logger.getLogger(SetCoveringEnvironment.class.getName());
     public static final int COVERED = 1;
 
     private final long preprocessTimeInSeconds;
     private final SetCoveringPreProcessor preProcessor;
 
-    public Set<Integer> dominatedCandidates;
-    public Set<Integer> mandatoryCandidates;
-    private Map<Integer, Set<Integer>> samplesPerCandidate;
+    public final Set<Integer> dominatedCandidates;
+    public final Set<Integer> mandatoryCandidates;
+    private final Map<Integer, Set<Integer>> samplesPerCandidate;
+
+    private final double[][] problemRepresentation;
 
 
     /**
      * Creates an Environment for the Ants to traverse.
      *
      * @param problemRepresentation Graph representation of the problem to be solved.
-     * @throws InvalidInputException When the problem graph is incorrectly formed.
      */
-    public SetCoveringEnvironment(double[][] problemRepresentation) throws InvalidInputException {
-        super(problemRepresentation);
+    public SetCoveringEnvironment(double[][] problemRepresentation) {
+        super();
+        this.problemRepresentation = problemRepresentation;
+        this.setPheromoneMatrix(this.createPheromoneMatrix());
 
         Instant preprocessStart = Instant.now();
 
@@ -73,15 +75,20 @@ public class SetCoveringEnvironment extends Environment {
     }
 
     protected double[][] createPheromoneMatrix() {
-        return new double[this.getNumberOfCandidates()][1];
+
+        if (this.problemRepresentation != null) {
+            return new double[this.getNumberOfCandidates()][1];
+        }
+
+        return null;
     }
 
     public int getNumberOfCandidates() {
-        return this.getProblemRepresentation()[0].length;
+        return problemRepresentation[0].length;
     }
 
     public int getNumberOfSamples() {
-        return this.getProblemRepresentation().length;
+        return this.problemRepresentation.length;
     }
 
     public Set<Integer> getCoveringCandidates(int sampleIndex) {
@@ -91,7 +98,7 @@ public class SetCoveringEnvironment extends Environment {
     private Set<Integer> getCoveringCandidates(int sampleIndex, IntStream candidateStream) {
         return candidateStream
                 .filter(candidateIndex -> !this.isDominatedCandidate(candidateIndex) &&
-                        this.getProblemRepresentation()[sampleIndex][candidateIndex] == COVERED)
+                        this.problemRepresentation[sampleIndex][candidateIndex] == COVERED)
                 .boxed()
                 .collect(Collectors.toSet());
     }
@@ -113,7 +120,7 @@ public class SetCoveringEnvironment extends Environment {
         return samplesPerCandidate;
     }
 
-    public boolean isValidSolution(Integer[] solutionFound) {
+    public boolean isValidSolution(List<Integer> solutionFound) {
         boolean[] samplesCovered = new boolean[this.getNumberOfSamples()];
         int pendingSamples = this.getNumberOfSamples();
 
@@ -147,5 +154,9 @@ public class SetCoveringEnvironment extends Environment {
                 ", dominatedCandidates.size()=" + dominatedCandidates.size() +
                 ", mandatoryCandidates.size()=" + mandatoryCandidates.size() +
                 "} " + super.toString();
+    }
+
+    public double[][] getProblemRepresentation() {
+        return this.problemRepresentation;
     }
 }

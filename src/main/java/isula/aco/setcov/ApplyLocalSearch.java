@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment> {
 
-    private static Logger logger = Logger.getLogger(ApplyLocalSearch.class.getName());
+    private static final Logger logger = Logger.getLogger(ApplyLocalSearch.class.getName());
 
     public ApplyLocalSearch() {
         super(AntPolicyType.AFTER_SOLUTION_IS_READY);
@@ -19,7 +19,7 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
     public boolean applyPolicy(SetCoveringEnvironment environment, ConfigurationProvider configurationProvider) {
 
         AntForSetCovering ant = (AntForSetCovering) this.getAnt();
-        Integer[] currentSolution = ant.getSolution();
+        List<Integer> currentSolution = ant.getSolution();
 
         Set<Integer> componentsToRemove = new HashSet<>();
         for (Integer candidateIndex : currentSolution) {
@@ -53,7 +53,7 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
                 }
             }
 
-            ant.setSolution(newSolution.toArray(new Integer[environment.getNumberOfCandidates()]));
+            ant.setSolution(newSolution);
         }
 
 
