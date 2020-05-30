@@ -18,13 +18,16 @@ import isula.aco.tuning.ParameterOptimisationTarget;
 import javax.naming.ConfigurationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import static setcov.isula.sample.FileUtils.isValidSolution;
-import static setcov.isula.sample.FileUtils.writeObjectToFile;
+import static setcov.isula.sample.FileUtils.*;
 
 public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
@@ -45,22 +48,23 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     public static void main(String... args) throws ConfigurationException, IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
-//        String prefix = "RW_";
-//        int startingInstance = 1;
-//        int finalInstance = 32;
+        List<String> fileNames = Files.list(Paths.get(DATA_DIRECTORY))
+                .filter(Files::isRegularFile)
+                .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
+                .map(Object::toString)
+                .collect(Collectors.toList());
 
-        String prefix = "AC_";
-        int startingInstance = 5;
-        int finalInstance = 5;
+        for (String fileName : fileNames) {
 
-        for (int instanceNumber = startingInstance; instanceNumber <= finalInstance; instanceNumber += 1) {
-            String instanceName = prefix + String.format("%02d", instanceNumber);
-            String fileName = FileUtils.getInputFile(instanceName);
             SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
 
             SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor);
             AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
             acoSetCoveringWithIsula.currentProcessingFile = fileName;
+            String instanceName = fileName.substring(fileName.length() - 15);
+            instanceName = instanceName.substring(0, 5);
+
+            logger.info("Current instance: " + instanceName);
             BaseAntSystemConfiguration configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration(instanceName);
 
             configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
@@ -82,10 +86,10 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         List<Integer> numberOfAntsValues = Collections.singletonList(3);
         List<Integer> numberOfIterationValues = Collections.singletonList(3);
         List<Double> initialPheromoneValues = Collections.singletonList(1.0);
+        List<Double> pheromoneImportanceValues = Collections.singletonList(1.0);
 
         List<Double> evaporationRatioValues = Arrays.asList(.1, .5, .9);
-        List<Double> heuristicImportanceValues = Arrays.asList(0., 2., 5.);
-        List<Double> pheromoneImportanceValues = Arrays.asList(0.25, 2., 5.);
+        List<Double> heuristicImportanceValues = Arrays.asList(1., 3., 5.);
 
         AcoParameterTuner parameterTuner = new AcoParameterTuner(numberOfAntsValues, evaporationRatioValues,
                 numberOfIterationValues, initialPheromoneValues, heuristicImportanceValues, pheromoneImportanceValues);

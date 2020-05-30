@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 public class FileUtils {
 
     private static final Logger logger = Logger.getLogger(FileUtils.class.getName());
-    private static final String DATA_DIRECTORY = "/Users/cgavidia/Documents/data/";
+    public static final String DATA_DIRECTORY = "/Users/cgavidia/Documents/coverData/normalProblems/";
 
     private static final int UNASSIGNED = -1;
     private static final String TEAM_NAME = "Isula";
@@ -100,7 +100,7 @@ public class FileUtils {
         int lineCounter = 0;
         int sampleIndex = UNASSIGNED;
         int candidatesForSample = UNASSIGNED;
-        try (BufferedReader reader = new BufferedReader(new FileReader(DATA_DIRECTORY + fileName))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split(" ");
