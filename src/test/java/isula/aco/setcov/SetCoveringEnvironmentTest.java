@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static setcov.isula.sample.FileUtils.DATA_DIRECTORY;
 import static setcov.isula.sample.FileUtils.isValidSolution;
 
 public class SetCoveringEnvironmentTest {
@@ -18,7 +17,8 @@ public class SetCoveringEnvironmentTest {
 
     public SetCoveringEnvironmentTest() throws IOException {
         String fileName = "AC_10_cover.txt";
-        SetCoveringPreProcessor preProcessor = FileUtils.initialisePreProcessorFromFile(DATA_DIRECTORY + fileName);
+        String dataDirectory = "/Users/cgavidia/Documents/coverData/normalProblems/";
+        SetCoveringPreProcessor preProcessor = FileUtils.initialisePreProcessorFromFile(dataDirectory + fileName);
         this.environment = new SetCoveringEnvironment(preProcessor);
     }
 

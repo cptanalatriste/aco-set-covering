@@ -4,10 +4,13 @@ import isula.aco.Ant;
 import isula.aco.exception.SolutionConstructionException;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
+
+    private static final Logger logger = Logger.getLogger(AntForSetCovering.class.getName());
 
     private final SetCoveringEnvironment environment;
     private boolean[] samplesCovered;
@@ -32,6 +35,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
     @Override
     public void visitNode(Integer candidateIndex, SetCoveringEnvironment environment) {
+        logger.fine("Visiting node");
         super.visitNode(candidateIndex, environment);
 
         Set<Integer> candidateSamples = environment.getSamplesPerCandidate().get(candidateIndex);
@@ -49,6 +53,8 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
     public Double getHeuristicValue(Integer candidateIndex, Integer positionInSolution,
                                     SetCoveringEnvironment environment) {
+        logger.fine("Getting heuristic value");
+
         Set<Integer> uncoveredSamples = this.getUncoveredSamples();
         Set<Integer> coveredByCandidate = environment.getSamplesForNonDominatedCandidate(candidateIndex);
 
@@ -89,7 +95,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
                 .findFirst();
 
         if (selectedSample.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         Set<Integer> coveringCandidates = environment.getCoveringCandidates(selectedSample.get());

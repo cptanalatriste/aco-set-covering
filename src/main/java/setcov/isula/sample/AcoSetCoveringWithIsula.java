@@ -40,7 +40,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
     private static final String ACADEMIC_PREFIX = "AC";
     private static final List<String> processedFiles = Arrays.asList("AC_01",
-            "AC_02", "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "RW_22"
+            "AC_02", "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "RW_22", "AC_15", "RW_18"
     );
 
     private final SetCoveringEnvironment setCoveringEnvironment;
@@ -51,46 +51,54 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     }
 
 
-    public static void main(String... args) throws ConfigurationException, IOException {
+    public static void main(String... args) throws IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
-        List<String> fileNames = Files.list(Paths.get(DATA_DIRECTORY))
+        String dataDirectory = args[0];
+
+        List<String> fileNames = Files.list(Paths.get(dataDirectory))
                 .filter(Files::isRegularFile)
                 .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
                 .map(Object::toString)
                 .collect(Collectors.toList());
 
-        for (String fileName : fileNames) {
-
-            String instanceName = fileName.substring(fileName.length() - 15);
-            instanceName = instanceName.substring(0, 5);
-
-            if (processedFiles.contains(instanceName)) {
-                logger.info("Skipping file " + fileName);
-                continue;
+        fileNames.stream().forEach(fileName1 -> {
+            try {
+                processProblemFile(fileName1);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        });
+    }
 
-            logger.info("Current instance: " + instanceName);
+    private static void processProblemFile(String fileName) throws IOException, ConfigurationException {
+        String instanceName = fileName.substring(fileName.length() - 15);
+        instanceName = instanceName.substring(0, 5);
 
-            SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
-
-            SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor,
-                    instanceName.contains(ACADEMIC_PREFIX));
-            AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
-            acoSetCoveringWithIsula.currentProcessingFile = fileName;
-
-            BaseAntSystemConfiguration configurationProvider = getDefaultAntSystemConfiguration();
-            configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
-            configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
-
-            AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment,
-                    configurationProvider, fileName);
-            writeObjectToFile(instanceName + "_solver.txt", problemSolver);
-
-            List<Integer> solutionFound = problemSolver.getBestSolution();
-            FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
-
+        if (processedFiles.contains(instanceName)) {
+            logger.info("Skipping file " + fileName);
+            return;
         }
+
+        logger.info("Current instance: " + instanceName);
+
+        SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
+
+        SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor,
+                instanceName.contains(ACADEMIC_PREFIX));
+        AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
+        acoSetCoveringWithIsula.currentProcessingFile = fileName;
+
+        BaseAntSystemConfiguration configurationProvider = getDefaultAntSystemConfiguration();
+        configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
+        configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
+
+        AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment,
+                configurationProvider, fileName);
+        writeObjectToFile(instanceName + "_solver.txt", problemSolver);
+
+        List<Integer> solutionFound = problemSolver.getBestSolution();
+        FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
     }
 
     private static BaseAntSystemConfiguration getDefaultAntSystemConfiguration() {

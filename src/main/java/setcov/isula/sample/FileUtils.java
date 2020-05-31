@@ -13,7 +13,6 @@ import java.util.stream.IntStream;
 public class FileUtils {
 
     private static final Logger logger = Logger.getLogger(FileUtils.class.getName());
-    public static final String DATA_DIRECTORY = "/Users/cgavidia/Documents/coverData/normalProblems/";
 
     private static final int UNASSIGNED = -1;
     private static final String TEAM_NAME = "Isula";

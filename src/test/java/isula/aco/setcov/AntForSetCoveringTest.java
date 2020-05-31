@@ -17,8 +17,10 @@ public class AntForSetCoveringTest {
 
     public AntForSetCoveringTest() throws IOException {
         String fileName = "AC_10_cover.txt";
+        String dataDirectory = "/Users/cgavidia/Documents/coverData/normalProblems/";
+
         preProcessor = FileUtils.initialisePreProcessorFromFile(
-                FileUtils.DATA_DIRECTORY + fileName);
+                dataDirectory + fileName);
         this.environment = new SetCoveringEnvironment(preProcessor);
     }
 
