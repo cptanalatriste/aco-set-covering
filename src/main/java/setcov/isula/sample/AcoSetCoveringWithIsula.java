@@ -38,7 +38,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
-    private static final List<String> processedFiles = Arrays.asList("AC_01", "AC_10", "AC_11");
+    private static final List<String> processedFiles = Arrays.asList("AC_01",
+            "AC_10", "AC_11", "AC_02");
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;

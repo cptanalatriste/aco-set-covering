@@ -18,6 +18,8 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
     @Override
     public boolean applyPolicy(SetCoveringEnvironment environment, ConfigurationProvider configurationProvider) {
 
+        logger.fine("Staring local search");
+
         AntForSetCovering ant = (AntForSetCovering) this.getAnt();
         List<Integer> currentSolution = ant.getSolution();
 
@@ -44,17 +46,12 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
         }
 
         if (componentsToRemove.size() > 0) {
-            logger.fine("Removing " + componentsToRemove.size() + " from a solution of size " + ant.getSolutionCost(environment));
-            List<Integer> newSolution = new ArrayList<>();
-
-            for (Integer candidateIndex : currentSolution) {
-                if (candidateIndex != null && !componentsToRemove.contains(candidateIndex)) {
-                    newSolution.add(candidateIndex);
-                }
-            }
-
-            ant.setSolution(newSolution);
+            logger.fine("Removing " + componentsToRemove.size() +
+                    " from a solution of size " + ant.getSolutionCost(environment));
+            ant.getSolution().removeAll(componentsToRemove);
         }
+
+        logger.fine("Ending local search");
 
 
         return true;

@@ -26,7 +26,8 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
     public void clear() {
         super.clear();
         this.samplesCovered = new boolean[environment.getNumberOfSamples()];
-        this.environment.getMandatoryCandidates().forEach((candidateIndex) -> this.visitNode(candidateIndex, this.environment));
+        this.environment.getMandatoryCandidates()
+                .forEach((candidateIndex) -> this.visitNode(candidateIndex, this.environment));
     }
 
     @Override
@@ -59,7 +60,7 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
         return commonElements.size() / (double) this.environment.getNumberOfSamples();
     }
 
-    private Set<Integer> getUncoveredSamples() {
+    public Set<Integer> getUncoveredSamples() {
 
         return IntStream.range(0, this.environment.getNumberOfSamples())
                 .filter(sampleIndex -> !this.samplesCovered[sampleIndex])
@@ -82,10 +83,19 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
 
     public List<Integer> getNeighbourhood(SetCoveringEnvironment environment) {
+        Set<Integer> uncoveredSamples = getUncoveredSamples();
+        Optional<Integer> selectedSample = uncoveredSamples.stream()
+                .skip((int) (uncoveredSamples.size() * Math.random()))
+                .findFirst();
 
-        return IntStream.range(0, environment.getNumberOfCandidates())
+        if (selectedSample.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        Set<Integer> coveringCandidates = environment.getCoveringCandidates(selectedSample.get());
+
+        return coveringCandidates.stream()
                 .filter(candidateIndex -> !this.isNodeVisited(candidateIndex) && !environment.isDominatedCandidate(candidateIndex))
-                .boxed()
                 .collect(Collectors.toList());
 
     }

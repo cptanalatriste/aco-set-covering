@@ -13,12 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AntForSetCoveringTest {
 
     private final SetCoveringEnvironment environment;
+    private final SetCoveringPreProcessor preProcessor;
 
     public AntForSetCoveringTest() throws IOException {
         String fileName = "AC_10_cover.txt";
-        SetCoveringPreProcessor problemRepresentation = FileUtils.initialisePreProcessorFromFile(
+        preProcessor = FileUtils.initialisePreProcessorFromFile(
                 FileUtils.DATA_DIRECTORY + fileName);
-        this.environment = new SetCoveringEnvironment(problemRepresentation);
+        this.environment = new SetCoveringEnvironment(preProcessor);
     }
 
     @Test
@@ -60,19 +61,20 @@ public class AntForSetCoveringTest {
     @Test
     public void testGetNeighbourhood() {
         AntForSetCovering ant = new AntForSetCovering(environment);
-        List<Integer> initialNeighbourHood = ant.getNeighbourhood(environment);
-
-        int expectedNeighbourhood = environment.getNumberOfCandidates() - environment.getDominatedCandidates().size();
-        assertEquals(expectedNeighbourhood, initialNeighbourHood.size());
 
         int bound = environment.getNumberOfCandidates();
+
         for (int candidateIndex = 0; candidateIndex < bound; candidateIndex++) {
             if (!environment.getDominatedCandidates().contains(candidateIndex)) {
                 ant.visitNode(candidateIndex, this.environment);
+
+                List<Integer> neighbourhood = ant.getNeighbourhood(environment);
+                assertFalse(neighbourhood.contains(candidateIndex));
             }
         }
 
         assertEquals(0, ant.getNeighbourhood(environment).size());
+        assertTrue(FileUtils.isValidSolution(ant.getSolution(), preProcessor));
     }
 
     @Test
