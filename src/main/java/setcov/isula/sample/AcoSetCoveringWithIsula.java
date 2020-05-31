@@ -38,8 +38,10 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
+    private static final String ACADEMIC_PREFIX = "AC";
     private static final List<String> processedFiles = Arrays.asList("AC_01",
-            "AC_10", "AC_11", "AC_02");
+            "AC_02", "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "RW_22"
+    );
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;
@@ -72,7 +74,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
             SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
 
-            SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor);
+            SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor,
+                    instanceName.contains(ACADEMIC_PREFIX));
             AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
             acoSetCoveringWithIsula.currentProcessingFile = fileName;
 

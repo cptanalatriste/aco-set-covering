@@ -22,7 +22,6 @@ public class ApplyLocalSearch extends AntPolicy<Integer, SetCoveringEnvironment>
 
         AntForSetCovering ant = (AntForSetCovering) this.getAnt();
         List<Integer> currentSolution = ant.getSolution();
-
         Set<Integer> componentsToRemove = new HashSet<>();
         for (Integer candidateIndex : currentSolution) {
 

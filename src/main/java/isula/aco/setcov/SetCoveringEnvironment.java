@@ -25,10 +25,15 @@ public class SetCoveringEnvironment extends Environment {
     private int numberOfSamples;
 
 
+    public SetCoveringEnvironment(SetCoveringPreProcessor preProcessor) {
+        this(preProcessor, true);
+    }
+
+
     /**
      * Creates an Environment for the Ants to traverse.
      */
-    public SetCoveringEnvironment(SetCoveringPreProcessor preProcessor) {
+    public SetCoveringEnvironment(SetCoveringPreProcessor preProcessor, boolean performDominanceAnalysis) {
         super();
 
         Instant preprocessStart = Instant.now();
@@ -37,8 +42,16 @@ public class SetCoveringEnvironment extends Environment {
         this.numberOfSamples = preProcessor.getNumberOfSamples();
 
         this.candidatesPerSample = preProcessor.getCandidatesPerSample();
-        this.dominatedCandidates = preProcessor.findDominatedCandidates();
-        this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.getSamplesPerCandidate());
+
+        if (performDominanceAnalysis) {
+            this.dominatedCandidates = preProcessor.findDominatedCandidates();
+            this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.getSamplesPerCandidate());
+
+        } else {
+            logger.warning("Skipping dominance analysis");
+            this.dominatedCandidates = Collections.emptySet();
+            this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.calculateSamplesPerCandidate());
+        }
 
         logger.info(dominatedCandidates.size() + " dominated candidates from " + this.getNumberOfCandidates());
         this.mandatoryCandidates = this.findMandatoryCandidates();
