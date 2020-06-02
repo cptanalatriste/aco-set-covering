@@ -30,7 +30,7 @@ public class FileUtils {
             }
         }
 
-        logger.info("Solution size " + solutionSize + " Solution: " + solutionAsString);
+        logger.fine("Solution size " + solutionSize + " Solution: " + solutionAsString);
 
         printWriter.println(solutionSize);
         printWriter.println(solutionAsString.substring(0, solutionAsString.length() - 1));

@@ -39,11 +39,10 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static final List<String> processedFiles = Arrays.asList(
             "AC_01",
-            "AC_02", "AC_10", "AC_11", "AC_12",
-            "AC_13",
-            "AC_14",
-            "RW_22", "AC_15", "RW_18", "RW_14", "RW_11",
-            "RW_26", "RW_16", "AC_03", "RW_32", "RW_28", "RW_34", "RW_33", "RW_29", "RW_35", "RW_37"
+            "AC_02", "AC_03", "AC_10", "AC_11", "AC_12",
+            "AC_13", "AC_14", "AC_15", "AC_16",
+            "RW_01", "RW_03", "RW_22", "RW_18", "RW_14", "RW_11",
+            "RW_26", "RW_16", "RW_32", "RW_28", "RW_34", "RW_33", "RW_29", "RW_35", "RW_36"
     );
 
     private final SetCoveringEnvironment setCoveringEnvironment;
