@@ -1,9 +1,6 @@
 package setcov.isula.sample;
 
-import isula.aco.AcoProblemSolver;
-import isula.aco.Ant;
-import isula.aco.AntColony;
-import isula.aco.ConfigurationProvider;
+import isula.aco.*;
 import isula.aco.algorithms.antsystem.OfflinePheromoneUpdate;
 import isula.aco.algorithms.antsystem.PerformEvaporation;
 import isula.aco.algorithms.antsystem.RandomNodeSelection;
@@ -34,13 +31,19 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static final Logger logger = Logger.getLogger(AcoSetCoveringWithIsula.class.getName());
 
-
+    private static final int PARALLEL_RUNS = 3;
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
     private static final String ACADEMIC_PREFIX = "AC";
-    private static final List<String> processedFiles = Arrays.asList("AC_01",
-            "AC_02", "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "RW_22", "AC_15", "RW_18"
+
+    private static final List<String> processedFiles = Arrays.asList(
+            "AC_01",
+            "AC_02", "AC_10", "AC_11", "AC_12",
+            "AC_13",
+            "AC_14",
+            "RW_22", "AC_15", "RW_18", "RW_14", "RW_11",
+            "RW_26", "RW_16", "AC_03", "RW_32", "RW_28", "RW_34", "RW_33", "RW_29", "RW_35", "RW_37"
     );
 
     private final SetCoveringEnvironment setCoveringEnvironment;
@@ -55,16 +58,17 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
 
         String dataDirectory = args[0];
-
         List<String> fileNames = Files.list(Paths.get(dataDirectory))
                 .filter(Files::isRegularFile)
                 .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
                 .map(Object::toString)
                 .collect(Collectors.toList());
 
-        fileNames.stream().forEach(fileName1 -> {
+//        List<String> fileNames = Arrays.asList("/Users/cgavidia/Documents/coverData/normalProblems/AC_01_cover.txt");
+
+        fileNames.forEach(fileName -> {
             try {
-                processProblemFile(fileName1);
+                processProblemFile(fileName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -146,18 +150,20 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     }
 
     private static AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(SetCoveringEnvironment environment,
-                                                                                  BaseAntSystemConfiguration
-                                                                                          configurationProvider,
+                                                                                  ConfigurationProvider configurationProvider,
                                                                                   String fileName) throws ConfigurationException, IOException {
 
-        AntColony<Integer, SetCoveringEnvironment> antColony = createAntColony(configurationProvider);
+        ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new ParallelAcoProblemSolver<>();
+        problemSolver.initialize(() -> new SetCoveringEnvironment(environment),
+                AcoSetCoveringWithIsula::createAntColony,
+                configurationProvider,
+                TIME_LIMIT, PARALLEL_RUNS);
 
-        AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new AcoProblemSolver<>();
-        problemSolver.initialize(environment, antColony, configurationProvider, TIME_LIMIT);
         configureAntSystem(problemSolver);
 
         problemSolver.solveProblem();
         List<Integer> solutionFound = problemSolver.getBestSolution();
+        logger.fine("Best solution found: " + solutionFound);
         if (!isValidSolution(solutionFound, fileName)) {
             throw new RuntimeException("The solution found is not valid :(");
         }
@@ -166,21 +172,24 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     }
 
-    private static void configureAntSystem(AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
-
-        problemSolver.addDaemonActions(new StartPheromoneMatrix<>(),
-                new PerformEvaporation<>());
-        problemSolver.addDaemonActions(new OfflinePheromoneUpdate<>());
-        problemSolver.getAntColony().addAntPolicies(new RandomNodeSelection<>(), new ApplyLocalSearch());
-    }
-
-    private static AntColony<Integer, SetCoveringEnvironment> createAntColony(BaseAntSystemConfiguration configurationProvide) {
-        return new AntColony<>(configurationProvide.getNumberOfAnts()) {
+    private static AntColony<Integer, SetCoveringEnvironment> createAntColony(ConfigurationProvider configurationProvider) {
+        return new AntColony<>(configurationProvider.getNumberOfAnts()) {
             @Override
             protected Ant<Integer, SetCoveringEnvironment> createAnt(SetCoveringEnvironment environment) {
                 return new AntForSetCovering(environment);
             }
         };
+    }
+
+    private static void configureAntSystem(ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
+
+        problemSolver.addDaemonAction(StartPheromoneMatrix::new);
+        problemSolver.addDaemonAction(PerformEvaporation::new);
+        problemSolver.addDaemonAction(OfflinePheromoneUpdate::new);
+
+        problemSolver.getAntColonies().forEach((colony) -> colony.addAntPolicies(new RandomNodeSelection<>(),
+                new ApplyLocalSearch()));
+
     }
 
 

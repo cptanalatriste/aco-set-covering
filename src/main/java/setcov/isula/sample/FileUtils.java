@@ -3,8 +3,8 @@ package setcov.isula.sample;
 import isula.aco.setcov.SetCoveringPreProcessor;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -30,6 +30,8 @@ public class FileUtils {
             }
         }
 
+        logger.info("Solution size " + solutionSize + " Solution: " + solutionAsString);
+
         printWriter.println(solutionSize);
         printWriter.println(solutionAsString.substring(0, solutionAsString.length() - 1));
 
@@ -46,10 +48,6 @@ public class FileUtils {
 
     }
 
-    static String getInputFile(String instanceName) {
-        return instanceName + "_cover.txt";
-    }
-
     private static String getOutputFile(String instanceName, String algorithmName) {
         return TEAM_NAME + "_" + algorithmName + "_Track1_" + instanceName + ".txt";
     }
@@ -61,7 +59,7 @@ public class FileUtils {
 
 
     public static boolean isValidSolution(List<Integer> solutionFound, SetCoveringPreProcessor preProcessor) {
-        HashMap<Integer, Set<Integer>> samplesPerCandidate = preProcessor.calculateSamplesPerCandidate();
+        Map<Integer, Set<Integer>> samplesPerCandidate = preProcessor.calculateSamplesPerCandidate();
 
         boolean[] samplesCovered = new boolean[preProcessor.getNumberOfSamples()];
         int pendingSamples = preProcessor.getNumberOfSamples();

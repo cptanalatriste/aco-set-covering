@@ -4,12 +4,18 @@ import isula.aco.exception.ConfigurationException;
 import org.apache.commons.math3.util.Combinations;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 public class SetCoveringPreProcessor {
 
-    private HashMap<Integer, Set<Integer>> samplesPerCandidate;
+    private static final Logger logger = Logger.getLogger(SetCoveringPreProcessor.class.getName());
+
+
+    private Map<Integer, Set<Integer>> samplesPerCandidate;
     private final HashMap<Integer, Set<Integer>> candidatesPerSample;
 
     private int numberOfCandidates;
@@ -26,11 +32,12 @@ public class SetCoveringPreProcessor {
                 .collect(Collectors.toUnmodifiableSet()));
     }
 
-    public HashMap<Integer, Set<Integer>> calculateSamplesPerCandidate() {
+    public Map<Integer, Set<Integer>> calculateSamplesPerCandidate() {
 
-        HashMap<Integer, Set<Integer>> samplesPerCandidate = new HashMap<>();
+        Map<Integer, Set<Integer>> samplesPerCandidate = new ConcurrentHashMap<>();
 
         IntStream.range(0, this.getNumberOfCandidates())
+                .parallel()
                 .forEach((candidateIndex) -> samplesPerCandidate.put(candidateIndex,
                         this.getSamplesCovered(candidateIndex)));
 
@@ -38,15 +45,21 @@ public class SetCoveringPreProcessor {
     }
 
     public Set<Integer> findDominatedCandidates() {
+
+        logger.fine("Starting calculateSamplesPerCandidate()");
         this.samplesPerCandidate = calculateSamplesPerCandidate();
+
+        logger.fine("Before inspecting combinations");
 
         if (this.getNumberOfCandidates() == 0 || this.getNumberOfSamples() == 0) {
             throw new ConfigurationException("You need to set the number of candidates and samples before " +
                     "starting pre-processing");
         }
 
-        Set<Integer> dominatedCandidates = new HashSet<>();
-        for (int[] candidates : new Combinations(this.getNumberOfCandidates(), 2)) {
+        Set<Integer> dominatedCandidates = Collections.synchronizedSet(new HashSet<>());
+
+        Combinations combinations = new Combinations(this.getNumberOfCandidates(), 2);
+        StreamSupport.stream(combinations.spliterator(), true).forEach((candidates) -> {
             int candidateIndex = candidates[0];
             Set<Integer> candidateSamples = this.samplesPerCandidate.get(candidateIndex);
             int opponentIndex = candidates[1];
@@ -55,13 +68,13 @@ public class SetCoveringPreProcessor {
             if (candidateSamples != null && opponentSamples != null) {
                 if (opponentSamples.containsAll(candidateSamples)) {
                     dominatedCandidates.add(candidateIndex);
-                    this.samplesPerCandidate.remove(candidateIndex);
                 } else if (candidateSamples.containsAll(opponentSamples)) {
                     dominatedCandidates.add(opponentIndex);
-                    this.samplesPerCandidate.remove(opponentIndex);
                 }
             }
-        }
+        });
+
+        dominatedCandidates.forEach((candidateIndex) -> this.samplesPerCandidate.remove(candidateIndex));
 
         return Collections.unmodifiableSet(dominatedCandidates);
     }
@@ -96,7 +109,7 @@ public class SetCoveringPreProcessor {
         return this.candidatesPerSample;
     }
 
-    public HashMap<Integer, Set<Integer>> getSamplesPerCandidate() {
+    public Map<Integer, Set<Integer>> getSamplesPerCandidate() {
         return this.samplesPerCandidate;
     }
 

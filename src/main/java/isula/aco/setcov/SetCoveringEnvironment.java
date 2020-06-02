@@ -24,6 +24,17 @@ public class SetCoveringEnvironment extends Environment {
     private int numberOfCandidates;
     private int numberOfSamples;
 
+    public SetCoveringEnvironment(SetCoveringEnvironment environmentToClone) {
+        this.preprocessTimeInSeconds = environmentToClone.getPreprocessTimeInSeconds();
+        this.dominatedCandidates = environmentToClone.getDominatedCandidates();
+        this.mandatoryCandidates = environmentToClone.getMandatoryCandidates();
+        this.samplesPerCandidate = environmentToClone.getSamplesPerCandidate();
+        this.candidatesPerSample = environmentToClone.getCandidatesPerSample();
+        this.numberOfCandidates = environmentToClone.getNumberOfCandidates();
+        this.numberOfSamples = environmentToClone.getNumberOfSamples();
+
+        this.setPheromoneMatrix(this.createPheromoneMatrix());
+    }
 
     public SetCoveringEnvironment(SetCoveringPreProcessor preProcessor) {
         this(preProcessor, true);
@@ -113,8 +124,18 @@ public class SetCoveringEnvironment extends Environment {
         return this.samplesPerCandidate.get(candidateIndex);
     }
 
+
+    private Map<Integer, Set<Integer>> getCandidatesPerSample() {
+        return this.candidatesPerSample;
+    }
+
     public boolean isDominatedCandidate(int candidateIndex) {
         return this.dominatedCandidates.contains(candidateIndex);
+    }
+
+
+    private long getPreprocessTimeInSeconds() {
+        return this.preprocessTimeInSeconds;
     }
 
     public Map<Integer, Set<Integer>> getSamplesPerCandidate() {

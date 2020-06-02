@@ -79,7 +79,12 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
             throw new RuntimeException("Cannot calculate cost of an incomplete solution");
         }
 
-        return Math.toIntExact(getSolution().stream().filter(Objects::nonNull).count());
+        return this.getSolutionCost(environment, this.getSolution());
+    }
+
+    @Override
+    public double getSolutionCost(SetCoveringEnvironment environment, List<Integer> solution) {
+        return solution.size();
     }
 
     public boolean isSolutionReady(SetCoveringEnvironment environment) {
