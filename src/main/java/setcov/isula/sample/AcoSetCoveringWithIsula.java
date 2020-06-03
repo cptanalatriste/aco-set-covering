@@ -37,13 +37,17 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
     private static final String ACADEMIC_PREFIX = "AC";
 
-    private static final List<String> processedFiles = Arrays.asList(
-            "AC_01",
-            "AC_02", "AC_03", "AC_10", "AC_11", "AC_12",
-            "AC_13", "AC_14", "AC_15", "AC_16",
-            "RW_01", "RW_03", "RW_22", "RW_18", "RW_14", "RW_11",
-            "RW_26", "RW_16", "RW_32", "RW_28", "RW_34", "RW_33", "RW_29", "RW_35", "RW_36"
-    );
+//    private static final List<String> processedFiles = Arrays.asList(
+//            "AC_01", "AC_02", "AC_03",
+//            "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "AC_15", "AC_16",
+//            "RW_01", "RW_03", "RW_05", "RW_07", "RW_09",
+//            "RW_18", "RW_14", "RW_11", "RW_16",
+//            "RW_22", "RW_23", "RW_26", "RW_24", "RW_28", "RW_29",
+//            "RW_32", "RW_34", "RW_33", "RW_35", "RW_36", "RW_37"
+//    );
+
+    private static final List<String> processedFiles = Collections.emptyList();
+
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;

@@ -14,7 +14,7 @@ public class SetCoveringEnvironment extends Environment {
 
     private static final Logger logger = Logger.getLogger(SetCoveringEnvironment.class.getName());
 
-    private final long preprocessTimeInSeconds;
+    private long preprocessTimeInSeconds;
 
     public final Set<Integer> dominatedCandidates;
     public final Set<Integer> mandatoryCandidates;
@@ -32,6 +32,7 @@ public class SetCoveringEnvironment extends Environment {
         this.candidatesPerSample = environmentToClone.getCandidatesPerSample();
         this.numberOfCandidates = environmentToClone.getNumberOfCandidates();
         this.numberOfSamples = environmentToClone.getNumberOfSamples();
+        this.preprocessTimeInSeconds = environmentToClone.preprocessTimeInSeconds;
 
         this.setPheromoneMatrix(this.createPheromoneMatrix());
     }
