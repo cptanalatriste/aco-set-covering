@@ -3,9 +3,7 @@ package setcov.isula.sample;
 import isula.aco.setcov.SetCoveringPreProcessor;
 
 import java.io.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -16,6 +14,24 @@ public class FileUtils {
 
     private static final int UNASSIGNED = -1;
     private static final String TEAM_NAME = "Isula";
+    private static final String ACADEMIC_PREFIX = "AC";
+
+    private static final List<String> processedFiles = Arrays.asList(
+            "AC_01", "AC_02", "AC_03",
+            "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "AC_15", "AC_16",
+            "RW_01", "RW_02", "RW_03", "RW_05", "RW_07", "RW_09",
+            "RW_11", "RW_14", "RW_16", "RW_18",
+            "RW_22", "RW_23", "RW_24", "RW_26", "RW_28", "RW_29",
+            "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
+    );
+
+    private static final List<String> blackList = Collections.singletonList("AC_19");
+
+
+    public static boolean shouldProcessFile(String fileName) {
+        String instanceName = getInstanceName(fileName);
+        return !processedFiles.contains(instanceName) && !blackList.contains(instanceName);
+    }
 
     static void writeSolutionToFile(String instanceName, String algorithmName, List<Integer> solutionFound) throws FileNotFoundException {
         String outputFile = getOutputFile(instanceName, algorithmName);
@@ -46,6 +62,15 @@ public class FileUtils {
         printWriter.close();
         logger.info("Object written to: " + fileName);
 
+    }
+
+    public static String getInstanceName(String fileName) {
+        String instanceName = fileName.substring(fileName.length() - 15);
+        return instanceName.substring(0, 5);
+    }
+
+    public static boolean requiresDominationAnalysis(String fileName) {
+        return getInstanceName(fileName).contains(ACADEMIC_PREFIX);
     }
 
     private static String getOutputFile(String instanceName, String algorithmName) {
