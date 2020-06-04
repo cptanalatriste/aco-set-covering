@@ -70,13 +70,13 @@ public class SetCoveringEnvironmentTest {
     }
 
     @Test
-    public void getMandatoryCandidates() {
+    public void testGetMandatoryCandidates() {
 
         SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
         preProcessor.setNumberOfSamples(4);
-        preProcessor.setNumberOfCandidates(4);
-        preProcessor.addCandidatesForSample(0, new String[]{"1"});
-        preProcessor.addCandidatesForSample(1, new String[]{"0", "2"});
+        preProcessor.setNumberOfCandidates(5);
+        preProcessor.addCandidatesForSample(0, new String[]{"1", "4"});
+        preProcessor.addCandidatesForSample(1, new String[]{"0", "1", "2"});
         preProcessor.addCandidatesForSample(2, new String[]{"2", "3"});
         preProcessor.addCandidatesForSample(3, new String[]{"0", "3"});
 

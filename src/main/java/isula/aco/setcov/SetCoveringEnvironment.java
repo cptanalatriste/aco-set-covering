@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class SetCoveringEnvironment extends Environment {
 
@@ -85,7 +86,9 @@ public class SetCoveringEnvironment extends Environment {
         Set<Integer> mandatoryCandidates = new HashSet<>();
 
         for (int sampleIndex = 0; sampleIndex < this.getNumberOfSamples(); sampleIndex += 1) {
-            Set<Integer> coveringCandidates = this.getCoveringCandidates(sampleIndex);
+            Set<Integer> coveringCandidates = this.getCoveringCandidates(sampleIndex).stream()
+                    .filter((candidateIndex) -> !this.dominatedCandidates.contains(candidateIndex))
+                    .collect(Collectors.toUnmodifiableSet());
 
             if (coveringCandidates.size() == 1) {
                 mandatoryCandidates.add(coveringCandidates.iterator().next());
