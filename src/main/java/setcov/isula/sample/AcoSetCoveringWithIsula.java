@@ -5,10 +5,7 @@ import isula.aco.algorithms.antsystem.OfflinePheromoneUpdate;
 import isula.aco.algorithms.antsystem.PerformEvaporation;
 import isula.aco.algorithms.antsystem.RandomNodeSelection;
 import isula.aco.algorithms.antsystem.StartPheromoneMatrix;
-import isula.aco.setcov.AntForSetCovering;
-import isula.aco.setcov.ApplyLocalSearch;
-import isula.aco.setcov.SetCoveringEnvironment;
-import isula.aco.setcov.SetCoveringPreProcessor;
+import isula.aco.setcov.*;
 import isula.aco.tuning.AcoParameterTuner;
 import isula.aco.tuning.ParameterOptimisationTarget;
 
@@ -18,10 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -35,7 +29,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
-
+    private final boolean isIteratedAnts = false;
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;
@@ -47,6 +41,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     public static void main(String... args) throws IOException {
         logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
+        logger.info("Processed files: " + processedFiles.size() +
+                " Pending files: " + (TOTAL_PROBLEM_INSTANCES - processedFiles.size()));
 
         String dataDirectory = args[0];
         List<String> fileNames = Files.list(Paths.get(dataDirectory))
@@ -81,8 +77,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
         configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
 
-        AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = solveProblem(setCoveringEnvironment,
-                configurationProvider, fileName);
+        AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = acoSetCoveringWithIsula.solveProblem(
+                setCoveringEnvironment, configurationProvider, fileName);
         writeObjectToFile(instanceName + "_solver.txt", problemSolver);
 
         List<Integer> solutionFound = problemSolver.getBestSolution();
@@ -133,13 +129,13 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         return problemSolver.getBestSolutionCost();
     }
 
-    private static AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(SetCoveringEnvironment environment,
-                                                                                  ConfigurationProvider configurationProvider,
-                                                                                  String fileName) throws ConfigurationException, IOException {
+    private AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(SetCoveringEnvironment environment,
+                                                                           ConfigurationProvider configurationProvider,
+                                                                           String fileName) throws ConfigurationException, IOException {
 
         ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new ParallelAcoProblemSolver<>();
         problemSolver.initialize(() -> new SetCoveringEnvironment(environment),
-                AcoSetCoveringWithIsula::createAntColony,
+                this::createAntColony,
                 configurationProvider,
                 TIME_LIMIT, PARALLEL_RUNS);
 
@@ -156,25 +152,50 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     }
 
-    private static AntColony<Integer, SetCoveringEnvironment> createAntColony(ConfigurationProvider configurationProvider) {
+    private AntColony<Integer, SetCoveringEnvironment> createAntColony(ConfigurationProvider configurationProvider) {
         return new AntColony<>(configurationProvider.getNumberOfAnts()) {
             @Override
             protected Ant<Integer, SetCoveringEnvironment> createAnt(SetCoveringEnvironment environment) {
-                return new AntForSetCovering(environment);
+                //TODO: Change this to avoid doing iterated ants.
+
+                if (isIteratedAnts) {
+                    Set<Integer> partialSolution = getPartialSolutionFromFile();
+                    return new AntForSetCovering(environment, partialSolution);
+                } else {
+                    return new AntForSetCovering(environment);
+                }
+
             }
         };
     }
 
-    private static void configureAntSystem(ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
+    private Set<Integer> getPartialSolutionFromFile() {
+        logger.info("Loading partial solution for: " + this.currentProcessingFile);
+        Set<Integer> partialSolution = new HashSet<>();
+        try {
+            List<Integer> solutionFile = FileUtils.getStoredSolution(this.currentProcessingFile);
+            partialSolution.addAll(solutionFile.subList(0, (int) (solutionFile.size() * 0.5)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return partialSolution;
+    }
+
+    private void configureAntSystem(ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
 
         problemSolver.addDaemonAction(StartPheromoneMatrix::new);
         problemSolver.addDaemonAction(PerformEvaporation::new);
         problemSolver.addDaemonAction(OfflinePheromoneUpdate::new);
 
-        problemSolver.getAntColonies().forEach((colony) -> colony.addAntPolicies(new RandomNodeSelection<>(),
-                new ApplyLocalSearch()));
+        problemSolver.getAntColonies()
+                .forEach((colony) -> colony.addAntPolicies(
+                        new RandomNodeSelection<>(), new ApplyLocalSearch()));
+
+        if (isIteratedAnts) {
+            logger.info("Adding a daemon action for partial solution generation.");
+            problemSolver.getAntColonies()
+                    .forEach((colony) -> colony.addAntPolicies(new ConstructPartialSolutionsForSetCovering()));
+        }
 
     }
-
-
 }

@@ -1,6 +1,6 @@
 package isula.aco.setcov;
 
-import isula.aco.Ant;
+import isula.aco.algorithms.iteratedants.AntWithPartialSolution;
 import isula.aco.exception.SolutionConstructionException;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
+public class AntForSetCovering extends AntWithPartialSolution<Integer, SetCoveringEnvironment> {
 
     private static final Logger logger = Logger.getLogger(AntForSetCovering.class.getName());
 
@@ -17,20 +17,29 @@ public class AntForSetCovering extends Ant<Integer, SetCoveringEnvironment> {
 
 
     public AntForSetCovering(SetCoveringEnvironment environment) {
+        this(environment, environment.getMandatoryCandidates());
+    }
+
+    public AntForSetCovering(SetCoveringEnvironment environment, Set<Integer> initialSolution) {
         super();
 
         this.environment = environment;
         this.samplesCovered = new boolean[environment.getNumberOfSamples()];
 
         this.setSolution(new ArrayList<>());
+        this.setPartialSolution(initialSolution);
     }
 
     @Override
     public void clear() {
-        super.clear();
         this.samplesCovered = new boolean[environment.getNumberOfSamples()];
-        this.environment.getMandatoryCandidates()
-                .forEach((candidateIndex) -> this.visitNode(candidateIndex, this.environment));
+        super.clear();
+        logger.fine("Initial solution size: " + this.getSolution().size());
+    }
+
+    @Override
+    public SetCoveringEnvironment getEnvironment() {
+        return this.environment;
     }
 
     @Override

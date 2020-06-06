@@ -15,14 +15,17 @@ public class FileUtils {
     private static final int UNASSIGNED = -1;
     private static final String TEAM_NAME = "Isula";
     private static final String ACADEMIC_PREFIX = "AC";
+    private static final String SOLUTION_DIRECTORY = "/Users/cgavidia/Documents/GitHub/gecco2020-ocp-competition/solutions/";
 
-    private static final List<String> processedFiles = Arrays.asList(
-            "AC_01", "AC_02", "AC_03",
-            "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "AC_15", "AC_16",
-            "RW_01", "RW_02", "RW_03", "RW_05", "RW_07", "RW_09",
-            "RW_11", "RW_14", "RW_16", "RW_18",
-            "RW_22", "RW_23", "RW_24", "RW_26", "RW_28", "RW_29",
-            "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
+    public static final int TOTAL_PROBLEM_INSTANCES = 69;
+
+    public static final List<String> processedFiles = Arrays.asList(
+            "AC_01", "AC_02", "AC_03", "AC_04", "AC_05",
+            "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "AC_15", "AC_16", "AC_17",
+            "RW_01", "RW_02", "RW_03", "RW_04", "RW_05", "RW_06", "RW_07", "RW_09",
+            "RW_11", "RW_12", "RW_13", "RW_14", "RW_15", "RW_16", "RW_17", "RW_18", "RW_19",
+            "RW_20", "RW_22", "RW_23", "RW_24", "RW_25", "RW_26", "RW_27", "RW_28", "RW_29",
+            "RW_30", "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
     );
 
     private static final List<String> blackList = Collections.singletonList("AC_19");
@@ -31,6 +34,9 @@ public class FileUtils {
     public static boolean shouldProcessFile(String fileName) {
         String instanceName = getInstanceName(fileName);
         return !processedFiles.contains(instanceName) && !blackList.contains(instanceName);
+//        return true;
+//        return instanceName.equals("AC_10");
+
     }
 
     static void writeSolutionToFile(String instanceName, String algorithmName, List<Integer> solutionFound) throws FileNotFoundException {
@@ -112,6 +118,36 @@ public class FileUtils {
         return pendingSamples == 0;
     }
 
+    public static List<Integer> readSolutionFromFile(String fileName) throws IOException {
+
+        int numberOfCandidates = 0;
+        int lineCounter = 0;
+        List<Integer> storedSolution = null;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(" ");
+
+                if (lineCounter == 0) {
+                    numberOfCandidates = Integer.parseInt(tokens[0]);
+
+                } else {
+
+                    if (tokens.length != numberOfCandidates) {
+                        throw new RuntimeException("Expecting " + numberOfCandidates + " candidates for solution " + fileName
+                                + " .Currently in file: " + tokens.length);
+                    }
+
+                    storedSolution = Arrays.stream(tokens).map(Integer::parseInt).collect(Collectors.toList());
+                }
+                lineCounter += 1;
+            }
+        }
+
+        return storedSolution;
+    }
+
     public static SetCoveringPreProcessor initialisePreProcessorFromFile(String fileName) throws IOException {
 
         int numberOfSamples;
@@ -156,5 +192,14 @@ public class FileUtils {
 
         logger.info("Problem information gathered from: " + fileName);
         return dataPreProcessor;
+    }
+
+    public static List<Integer> getStoredSolution(String inputFileName) throws IOException {
+        String problemInstance = getInstanceName(inputFileName);
+        String solutionFile = SOLUTION_DIRECTORY + "Isula_AntSystemConfiguration_Track1_" + problemInstance + ".txt";
+
+        List<Integer> storedSolution = readSolutionFromFile(solutionFile);
+        logger.info("Solution loaded from file: " + solutionFile);
+        return storedSolution;
     }
 }
