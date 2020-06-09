@@ -22,13 +22,13 @@ public class FileUtils {
     public static final List<String> processedFiles = Arrays.asList(
             "AC_01", "AC_02", "AC_03", "AC_04", "AC_05",
             "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "AC_15", "AC_16", "AC_17",
-            "RW_01", "RW_02", "RW_03", "RW_04", "RW_05", "RW_06", "RW_07", "RW_09",
-            "RW_11", "RW_12", "RW_13", "RW_14", "RW_15", "RW_16", "RW_17", "RW_18", "RW_19",
+            "RW_01", "RW_02", "RW_03", "RW_04", "RW_05", "RW_06", "RW_07", "RW_08", "RW_09",
+            "RW_10", "RW_11", "RW_12", "RW_13", "RW_14", "RW_15", "RW_16", "RW_17", "RW_18", "RW_19",
             "RW_20", "RW_22", "RW_23", "RW_24", "RW_25", "RW_26", "RW_27", "RW_28", "RW_29",
             "RW_30", "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
     );
 
-    private static final List<String> blackList = Collections.singletonList("AC_19");
+    private static final List<String> blackList = Arrays.asList("AC_18", "AC_19", "AC_20");
 
 
     public static boolean shouldProcessFile(String fileName) {

@@ -29,7 +29,10 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
     private static final Duration TIME_LIMIT = Duration.ofHours(1);
+//    private final boolean isIteratedAnts = true;
     private final boolean isIteratedAnts = false;
+    public static final double REMOVAL_FACTOR = 0.5;
+
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;
