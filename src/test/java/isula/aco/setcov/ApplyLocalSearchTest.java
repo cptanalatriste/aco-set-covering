@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static setcov.isula.sample.AcoSetCoveringWithIsula.PREPROCESING_TIME_LIMIT;
 import static setcov.isula.sample.FileUtils.isValidSolution;
 
 class ApplyLocalSearchTest {
@@ -13,7 +14,7 @@ class ApplyLocalSearchTest {
     @Test
     void testApplyPolicy() {
 
-        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);
         preProcessor.setNumberOfCandidates(5);
         preProcessor.addCandidatesForSample(0, new String[]{"1", "4"});

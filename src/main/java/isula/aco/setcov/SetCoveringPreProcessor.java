@@ -3,6 +3,9 @@ package isula.aco.setcov;
 import isula.aco.exception.ConfigurationException;
 import org.apache.commons.math3.util.Combinations;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -17,13 +20,16 @@ public class SetCoveringPreProcessor {
 
     private Map<Integer, Set<Integer>> samplesPerCandidate;
     private final HashMap<Integer, Set<Integer>> candidatesPerSample;
+    public final Duration preprocessingTimeLimit;
+
 
     private int numberOfCandidates;
     private int numberOfSamples;
 
-    public SetCoveringPreProcessor() {
+    public SetCoveringPreProcessor(Duration preprocessingTimeLimit) {
         this.samplesPerCandidate = new HashMap<>();
         this.candidatesPerSample = new HashMap<>();
+        this.preprocessingTimeLimit = preprocessingTimeLimit;
     }
 
     public void addCandidatesForSample(int sampleIndex, String[] candidatesAsTokens) {
@@ -37,6 +43,7 @@ public class SetCoveringPreProcessor {
         Map<Integer, Set<Integer>> samplesPerCandidate = new ConcurrentHashMap<>();
 
         IntStream.range(0, this.getNumberOfCandidates())
+                .unordered()
                 .parallel()
                 .forEach((candidateIndex) -> samplesPerCandidate.put(candidateIndex,
                         this.getSamplesCovered(candidateIndex)));
@@ -46,10 +53,10 @@ public class SetCoveringPreProcessor {
 
     public Set<Integer> findDominatedCandidates() {
 
-        logger.fine("Starting calculateSamplesPerCandidate()");
+        logger.info("Starting calculateSamplesPerCandidate()");
         this.samplesPerCandidate = calculateSamplesPerCandidate();
 
-        logger.fine("Before inspecting combinations");
+        logger.info("Before inspecting combinations");
 
         if (this.getNumberOfCandidates() == 0 || this.getNumberOfSamples() == 0) {
             throw new ConfigurationException("You need to set the number of candidates and samples before " +
@@ -59,20 +66,25 @@ public class SetCoveringPreProcessor {
         Set<Integer> dominatedCandidates = Collections.synchronizedSet(new HashSet<>());
 
         Combinations combinations = new Combinations(this.getNumberOfCandidates(), 2);
-        StreamSupport.stream(combinations.spliterator(), true).forEach((candidates) -> {
-            int candidateIndex = candidates[0];
-            Set<Integer> candidateSamples = this.samplesPerCandidate.get(candidateIndex);
-            int opponentIndex = candidates[1];
-            Set<Integer> opponentSamples = this.samplesPerCandidate.get(opponentIndex);
+        Temporal executionStartTime = Instant.now();
+        StreamSupport.stream(combinations.spliterator(), true)
+                .unordered()
+                .takeWhile((combination) -> Duration.between(executionStartTime, Instant.now()).compareTo(preprocessingTimeLimit) < 0)
+                .forEach((candidates) -> {
+                    int candidateIndex = candidates[0];
+                    int opponentIndex = candidates[1];
 
-            if (candidateSamples != null && opponentSamples != null) {
-                if (opponentSamples.containsAll(candidateSamples)) {
-                    dominatedCandidates.add(candidateIndex);
-                } else if (candidateSamples.containsAll(opponentSamples)) {
-                    dominatedCandidates.add(opponentIndex);
-                }
-            }
-        });
+                    Set<Integer> candidateSamples = this.samplesPerCandidate.get(candidateIndex);
+                    Set<Integer> opponentSamples = this.samplesPerCandidate.get(opponentIndex);
+
+                    if (candidateSamples != null && opponentSamples != null) {
+                        if (opponentSamples.containsAll(candidateSamples)) {
+                            dominatedCandidates.add(candidateIndex);
+                        } else if (candidateSamples.containsAll(opponentSamples)) {
+                            dominatedCandidates.add(opponentIndex);
+                        }
+                    }
+                });
 
         dominatedCandidates.forEach((candidateIndex) -> this.samplesPerCandidate.remove(candidateIndex));
 

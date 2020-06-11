@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static setcov.isula.sample.AcoSetCoveringWithIsula.PREPROCESING_TIME_LIMIT;
 
 public class AntForSetCoveringTest {
 
@@ -100,7 +101,7 @@ public class AntForSetCoveringTest {
     @Test
     void testClear() {
 
-        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);
         preProcessor.setNumberOfCandidates(4);
         preProcessor.addCandidatesForSample(0, new String[]{"1"});

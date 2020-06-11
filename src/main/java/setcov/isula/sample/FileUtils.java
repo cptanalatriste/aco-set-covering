@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static setcov.isula.sample.AcoSetCoveringWithIsula.PREPROCESING_TIME_LIMIT;
+
 public class FileUtils {
 
     private static final Logger logger = Logger.getLogger(FileUtils.class.getName());
@@ -28,14 +30,12 @@ public class FileUtils {
             "RW_30", "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
     );
 
-    private static final List<String> blackList = Arrays.asList("AC_18", "AC_19", "AC_20");
-
 
     public static boolean shouldProcessFile(String fileName) {
         String instanceName = getInstanceName(fileName);
-        return !processedFiles.contains(instanceName) && !blackList.contains(instanceName);
+        return !processedFiles.contains(instanceName);
 //        return true;
-//        return instanceName.equals("AC_10");
+//        return instanceName.equals("AC_13");
 
     }
 
@@ -153,7 +153,7 @@ public class FileUtils {
         int numberOfSamples;
         int numberOfCandidates;
 
-        SetCoveringPreProcessor dataPreProcessor = new SetCoveringPreProcessor();
+        SetCoveringPreProcessor dataPreProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
 
         int lineCounter = 0;
         int sampleIndex = UNASSIGNED;

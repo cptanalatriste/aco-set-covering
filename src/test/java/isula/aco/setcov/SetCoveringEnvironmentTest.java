@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static setcov.isula.sample.AcoSetCoveringWithIsula.PREPROCESING_TIME_LIMIT;
 import static setcov.isula.sample.FileUtils.isValidSolution;
 
 public class SetCoveringEnvironmentTest {
@@ -49,7 +50,7 @@ public class SetCoveringEnvironmentTest {
 
         assertTrue(this.environment.getDominatedCandidates().size() <= this.environment.getNumberOfCandidates());
 
-        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);
         preProcessor.setNumberOfCandidates(4);
         preProcessor.addCandidatesForSample(0, new String[]{"0"});
@@ -72,7 +73,7 @@ public class SetCoveringEnvironmentTest {
     @Test
     public void testGetMandatoryCandidates() {
 
-        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);
         preProcessor.setNumberOfCandidates(5);
         preProcessor.addCandidatesForSample(0, new String[]{"1", "4"});
@@ -91,7 +92,7 @@ public class SetCoveringEnvironmentTest {
     @Test
     void testValidateSolution() throws IOException {
 
-        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor();
+        SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);
         preProcessor.setNumberOfCandidates(4);
         preProcessor.addCandidatesForSample(0, new String[]{"1"});
