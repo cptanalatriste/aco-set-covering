@@ -29,11 +29,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     private static final int NUMBER_OF_ANTS = 5;
     private static final int NUMBER_OF_ITERATIONS = 10;
     private static final Duration CONSTRUCTION_TIME_LIMIT = Duration.ofHours(1);
-    public static final Duration PREPROCESING_TIME_LIMIT = Duration.ofHours(2);
-
-    private final boolean isIteratedAnts = false;
-    public static final double REMOVAL_FACTOR = 0.5;
-
+    public static final Duration PREPROCESING_TIME_LIMIT = Duration.ofHours(1);
 
     private final SetCoveringEnvironment setCoveringEnvironment;
     private String currentProcessingFile;
@@ -157,36 +153,17 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     }
 
-    private AntColony<Integer, SetCoveringEnvironment> createAntColony(ConfigurationProvider configurationProvider) {
+    public AntColony<Integer, SetCoveringEnvironment> createAntColony(ConfigurationProvider configurationProvider) {
         return new AntColony<>(configurationProvider.getNumberOfAnts()) {
             @Override
             protected Ant<Integer, SetCoveringEnvironment> createAnt(SetCoveringEnvironment environment) {
-                //TODO: Change this to avoid doing iterated ants.
-
-                if (isIteratedAnts) {
-                    Set<Integer> partialSolution = getPartialSolutionFromFile();
-                    return new AntForSetCovering(environment, partialSolution);
-                } else {
-                    return new AntForSetCovering(environment);
-                }
-
+                return new AntForSetCovering(environment);
             }
         };
     }
 
-    private Set<Integer> getPartialSolutionFromFile() {
-        logger.info("Loading partial solution for: " + this.currentProcessingFile);
-        Set<Integer> partialSolution = new HashSet<>();
-        try {
-            List<Integer> solutionFile = FileUtils.getStoredSolution(this.currentProcessingFile);
-            partialSolution.addAll(solutionFile.subList(0, (int) (solutionFile.size() * 0.5)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return partialSolution;
-    }
 
-    private void configureAntSystem(ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
+    public void configureAntSystem(ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver) {
 
         problemSolver.addDaemonAction(StartPheromoneMatrix::new);
         problemSolver.addDaemonAction(PerformEvaporation::new);
@@ -196,11 +173,9 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
                 .forEach((colony) -> colony.addAntPolicies(
                         new RandomNodeSelection<>(), new ApplyLocalSearch()));
 
-        if (isIteratedAnts) {
-            logger.info("Adding a daemon action for partial solution generation.");
-            problemSolver.getAntColonies()
-                    .forEach((colony) -> colony.addAntPolicies(new ConstructPartialSolutionsForSetCovering()));
-        }
+    }
 
+    public String getCurrentProcessingFile() {
+        return currentProcessingFile;
     }
 }

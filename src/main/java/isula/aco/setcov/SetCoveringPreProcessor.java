@@ -48,7 +48,7 @@ public class SetCoveringPreProcessor {
                 .forEach((candidateIndex) -> samplesPerCandidate.put(candidateIndex,
                         this.getSamplesCovered(candidateIndex)));
 
-        return samplesPerCandidate;
+        return Collections.unmodifiableMap(samplesPerCandidate);
     }
 
     public Set<Integer> findDominatedCandidates() {
@@ -85,8 +85,6 @@ public class SetCoveringPreProcessor {
                         }
                     }
                 });
-
-        dominatedCandidates.forEach((candidateIndex) -> this.samplesPerCandidate.remove(candidateIndex));
 
         return Collections.unmodifiableSet(dominatedCandidates);
     }

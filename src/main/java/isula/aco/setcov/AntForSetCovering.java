@@ -50,7 +50,7 @@ public class AntForSetCovering extends AntWithPartialSolution<Integer, SetCoveri
         Set<Integer> candidateSamples = environment.getSamplesPerCandidate().get(candidateIndex);
 
         if (candidateSamples == null) {
-            throw new SolutionConstructionException("Candidate " + candidateIndex + " is dominated.");
+            throw new SolutionConstructionException("Could not find samples for candidate " + candidateIndex + " .");
         }
 
         candidateSamples.forEach((sampleIndex) -> this.samplesCovered[sampleIndex] = true);

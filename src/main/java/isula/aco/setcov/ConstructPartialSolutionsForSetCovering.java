@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static setcov.isula.sample.AcoSetCoveringWithIsula.REMOVAL_FACTOR;
+import static setcov.isula.sample.IteratedAntsForSetCovering.REMOVAL_FACTOR;
+
 
 public class ConstructPartialSolutionsForSetCovering extends ConstructPartialSolution<Integer, SetCoveringEnvironment> {
 
