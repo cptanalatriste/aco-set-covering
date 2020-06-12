@@ -45,16 +45,13 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
                 " Pending files: " + (TOTAL_PROBLEM_INSTANCES - processedFiles.size()));
 
         String dataDirectory = args[0];
-        List<String> fileNames = Files.list(Paths.get(dataDirectory))
-                .filter(Files::isRegularFile)
-                .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
-                .map(Object::toString)
-                .filter(FileUtils::shouldProcessFile)
-                .collect(Collectors.toList());
+        List<String> fileNames = getFilesToProcess(dataDirectory);
 
         fileNames.forEach(fileName -> {
             try {
-                processProblemFile(fileName);
+                SetCoveringEnvironment setCoveringEnvironment = getSetCoveringEnvironment(fileName);
+                AcoSetCoveringWithIsula acoSetCoveringWithIsula = getCoordinatorInstance(fileName, setCoveringEnvironment);
+                processProblemFile(fileName, setCoveringEnvironment, acoSetCoveringWithIsula);
             } catch (Exception e) {
                 logger.warning("Error processing: " + fileName);
                 e.printStackTrace();
@@ -62,17 +59,13 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         });
     }
 
-    private static void processProblemFile(String fileName) throws IOException, ConfigurationException {
+
+    protected static void processProblemFile(String fileName, SetCoveringEnvironment setCoveringEnvironment,
+                                             AcoSetCoveringWithIsula acoSetCoveringWithIsula) throws IOException, ConfigurationException {
         String instanceName = getInstanceName(fileName);
 
         logger.info("Current instance: " + instanceName);
 
-        SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
-
-        SetCoveringEnvironment setCoveringEnvironment = new SetCoveringEnvironment(dataPreProcessor,
-                requiresDominationAnalysis(fileName));
-        AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
-        acoSetCoveringWithIsula.currentProcessingFile = fileName;
 
         BaseAntSystemConfiguration configurationProvider = getDefaultAntSystemConfiguration();
         configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
@@ -84,6 +77,18 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
         List<Integer> solutionFound = problemSolver.getBestSolution();
         FileUtils.writeSolutionToFile(instanceName, configurationProvider.getConfigurationName(), solutionFound);
+    }
+
+    protected static SetCoveringEnvironment getSetCoveringEnvironment(String fileName) throws IOException {
+        SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
+        return new SetCoveringEnvironment(dataPreProcessor,
+                requiresDominationAnalysis(fileName));
+    }
+
+    protected static AcoSetCoveringWithIsula getCoordinatorInstance(String fileName, SetCoveringEnvironment setCoveringEnvironment) {
+        AcoSetCoveringWithIsula acoSetCoveringWithIsula = new AcoSetCoveringWithIsula(setCoveringEnvironment);
+        acoSetCoveringWithIsula.setCurrentProcessingFile(fileName);
+        return acoSetCoveringWithIsula;
     }
 
     private static BaseAntSystemConfiguration getDefaultAntSystemConfiguration() {
@@ -177,5 +182,9 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     public String getCurrentProcessingFile() {
         return currentProcessingFile;
+    }
+
+    public void setCurrentProcessingFile(String currentProcessingFile) {
+        this.currentProcessingFile = currentProcessingFile;
     }
 }

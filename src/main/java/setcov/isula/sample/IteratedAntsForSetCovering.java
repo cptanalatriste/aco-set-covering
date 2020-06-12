@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static setcov.isula.sample.FileUtils.*;
+
 public class IteratedAntsForSetCovering extends AcoSetCoveringWithIsula {
 
     private static final Logger logger = Logger.getLogger(IteratedAntsForSetCovering.class.getName());
@@ -22,6 +24,34 @@ public class IteratedAntsForSetCovering extends AcoSetCoveringWithIsula {
 
     public IteratedAntsForSetCovering(SetCoveringEnvironment setCoveringEnvironment) {
         super(setCoveringEnvironment);
+    }
+
+    public static void main(String... args) throws IOException {
+        logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
+        logger.info("Processed files: " + processedFiles.size() +
+                " Pending files: " + (TOTAL_PROBLEM_INSTANCES - processedFiles.size()));
+
+        String dataDirectory = args[0];
+        List<String> fileNames = getFilesToProcess(dataDirectory);
+
+        fileNames.forEach(fileName -> {
+            try {
+                SetCoveringEnvironment setCoveringEnvironment = getSetCoveringEnvironment(fileName);
+                IteratedAntsForSetCovering acoSetCoveringWithIsula = getCoordinatorInstance(fileName, setCoveringEnvironment);
+                processProblemFile(fileName, setCoveringEnvironment, acoSetCoveringWithIsula);
+            } catch (Exception e) {
+                logger.warning("Error processing: " + fileName);
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    protected static IteratedAntsForSetCovering getCoordinatorInstance(String fileName,
+                                                                       SetCoveringEnvironment setCoveringEnvironment) {
+        IteratedAntsForSetCovering acoSetCoveringWithIsula = new IteratedAntsForSetCovering(setCoveringEnvironment);
+        acoSetCoveringWithIsula.setCurrentProcessingFile(fileName);
+        return acoSetCoveringWithIsula;
     }
 
     @Override

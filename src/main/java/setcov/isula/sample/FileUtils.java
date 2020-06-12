@@ -3,6 +3,8 @@ package setcov.isula.sample;
 import isula.aco.setcov.SetCoveringPreProcessor;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -29,6 +31,15 @@ public class FileUtils {
             "RW_20", "RW_22", "RW_23", "RW_24", "RW_25", "RW_26", "RW_27", "RW_28", "RW_29",
             "RW_30", "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
     );
+
+    public static List<String> getFilesToProcess(String dataDirectory) throws IOException {
+        return Files.list(Paths.get(dataDirectory))
+                .filter(Files::isRegularFile)
+                .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
+                .map(Object::toString)
+                .filter(FileUtils::shouldProcessFile)
+                .collect(Collectors.toList());
+    }
 
 
     public static boolean shouldProcessFile(String fileName) {
