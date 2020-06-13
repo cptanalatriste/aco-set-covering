@@ -27,12 +27,11 @@ public class IteratedAntsForSetCovering extends AcoSetCoveringWithIsula {
     }
 
     public static void main(String... args) throws IOException {
-        logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
-        logger.info("Processed files: " + processedFiles.size() +
-                " Pending files: " + (TOTAL_PROBLEM_INSTANCES - processedFiles.size()));
+        logger.info("ITERATED ANTS FOR THE SET COVERING PROBLEM");
 
-        String dataDirectory = args[0];
-        List<String> fileNames = getFilesToProcess(dataDirectory);
+        String mode = args[0];
+        String path = args[1];
+        List<String> fileNames = getFilesToProcess(mode, path);
 
         fileNames.forEach(fileName -> {
             try {

@@ -5,19 +5,21 @@ import isula.aco.algorithms.antsystem.OfflinePheromoneUpdate;
 import isula.aco.algorithms.antsystem.PerformEvaporation;
 import isula.aco.algorithms.antsystem.RandomNodeSelection;
 import isula.aco.algorithms.antsystem.StartPheromoneMatrix;
-import isula.aco.setcov.*;
+import isula.aco.setcov.AntForSetCovering;
+import isula.aco.setcov.ApplyLocalSearch;
+import isula.aco.setcov.SetCoveringEnvironment;
+import isula.aco.setcov.SetCoveringPreProcessor;
 import isula.aco.tuning.AcoParameterTuner;
 import isula.aco.tuning.ParameterOptimisationTarget;
 
 import javax.naming.ConfigurationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static setcov.isula.sample.FileUtils.*;
 
@@ -40,12 +42,11 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
 
     public static void main(String... args) throws IOException {
-        logger.info("ANT COLONY FOR THE SET COVERING PROBLEM");
-        logger.info("Processed files: " + processedFiles.size() +
-                " Pending files: " + (TOTAL_PROBLEM_INSTANCES - processedFiles.size()));
+        logger.info("ANT SYSTEM FOR THE SET COVERING PROBLEM");
 
-        String dataDirectory = args[0];
-        List<String> fileNames = getFilesToProcess(dataDirectory);
+        String mode = args[0];
+        String path = args[1];
+        List<String> fileNames = getFilesToProcess(mode, path);
 
         fileNames.forEach(fileName -> {
             try {

@@ -56,7 +56,7 @@ public class SetCoveringPreProcessor {
         logger.info("Starting calculateSamplesPerCandidate()");
         this.samplesPerCandidate = calculateSamplesPerCandidate();
 
-        logger.info("Before inspecting combinations");
+        logger.info("Starting domination analysis");
 
         if (this.getNumberOfCandidates() == 0 || this.getNumberOfSamples() == 0) {
             throw new ConfigurationException("You need to set the number of candidates and samples before " +
@@ -78,9 +78,12 @@ public class SetCoveringPreProcessor {
                     Set<Integer> opponentSamples = this.samplesPerCandidate.get(opponentIndex);
 
                     if (candidateSamples != null && opponentSamples != null) {
-                        if (opponentSamples.containsAll(candidateSamples)) {
+
+                        if (opponentSamples.size() >= candidateSamples.size() &&
+                                opponentSamples.containsAll(candidateSamples)) {
                             dominatedCandidates.add(candidateIndex);
-                        } else if (candidateSamples.containsAll(opponentSamples)) {
+                        } else if (candidateSamples.size() > opponentSamples.size() &&
+                                candidateSamples.containsAll(opponentSamples)) {
                             dominatedCandidates.add(opponentIndex);
                         }
                     }

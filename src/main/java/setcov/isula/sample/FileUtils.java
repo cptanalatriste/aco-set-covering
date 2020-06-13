@@ -20,34 +20,28 @@ public class FileUtils {
     private static final String TEAM_NAME = "Isula";
     private static final String ACADEMIC_PREFIX = "AC";
     private static final String SOLUTION_DIRECTORY = "/Users/cgavidia/Documents/GitHub/gecco2020-ocp-competition/solutions/";
+    private static final String DIRECTORY_MODE = "-d";
+    private static final String FILE_MODE = "-f";
 
-    public static final int TOTAL_PROBLEM_INSTANCES = 69;
 
-    public static final List<String> processedFiles = Arrays.asList(
-            "AC_01", "AC_02", "AC_03", "AC_04", "AC_05",
-            "AC_10", "AC_11", "AC_12", "AC_13", "AC_14", "AC_15", "AC_16", "AC_17", "AC_18",
-            "RW_01", "RW_02", "RW_03", "RW_04", "RW_05", "RW_06", "RW_07", "RW_08", "RW_09",
-            "RW_10", "RW_11", "RW_12", "RW_13", "RW_14", "RW_15", "RW_16", "RW_17", "RW_18", "RW_19",
-            "RW_20", "RW_22", "RW_23", "RW_24", "RW_25", "RW_26", "RW_27", "RW_28", "RW_29",
-            "RW_30", "RW_32", "RW_33", "RW_34", "RW_35", "RW_36", "RW_37"
-    );
+    public static List<String> getFilesToProcess(String mode, String path) throws IOException {
+        if (DIRECTORY_MODE.equals(mode)) {
+            return Files.list(Paths.get(path))
+                    .filter(Files::isRegularFile)
+                    .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
+                    .map(Object::toString)
+                    .filter(FileUtils::shouldProcessFile)
+                    .collect(Collectors.toList());
+        } else if (FILE_MODE.equals(mode)) {
+            return Collections.singletonList(path);
+        }
 
-    public static List<String> getFilesToProcess(String dataDirectory) throws IOException {
-        return Files.list(Paths.get(dataDirectory))
-                .filter(Files::isRegularFile)
-                .sorted(Comparator.comparing(p -> p.toFile().length(), Comparator.naturalOrder()))
-                .map(Object::toString)
-                .filter(FileUtils::shouldProcessFile)
-                .collect(Collectors.toList());
+        return Collections.emptyList();
     }
 
 
     public static boolean shouldProcessFile(String fileName) {
-        String instanceName = getInstanceName(fileName);
-//        return !processedFiles.contains(instanceName);
-//        return true;
-        return instanceName.equals("AC_19");
-
+        return true;
     }
 
     static void writeSolutionToFile(String instanceName, String algorithmName, List<Integer> solutionFound) throws FileNotFoundException {
