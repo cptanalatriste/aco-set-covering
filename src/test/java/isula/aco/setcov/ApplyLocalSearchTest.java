@@ -35,9 +35,11 @@ class ApplyLocalSearchTest {
         localSearchPolicy.applyPolicy(smallEnvironment, null);
 
         List<Integer> improvedSolution = ant.getSolution();
-        assertTrue(isValidSolution(improvedSolution, preProcessor));
+        assertTrue(isValidSolution(improvedSolution, preProcessor.getSamplesPerCandidate(),
+                preProcessor.getNumberOfSamples()));
         assertTrue(ant.getSolutionCost(smallEnvironment) < originalCost);
-        assertTrue(isValidSolution(improvedSolution, preProcessor));
+        assertTrue(isValidSolution(improvedSolution, preProcessor.getSamplesPerCandidate(),
+                preProcessor.getNumberOfSamples()));
 
     }
 }

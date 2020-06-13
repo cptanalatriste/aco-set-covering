@@ -103,10 +103,12 @@ public class SetCoveringEnvironmentTest {
         SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
 
         List<Integer> invalidSolution = Arrays.asList(3, 1, null, null);
-        assertFalse(isValidSolution(invalidSolution, preProcessor));
+        assertFalse(isValidSolution(invalidSolution, preProcessor.getSamplesPerCandidate(),
+                preProcessor.getNumberOfSamples()));
 
         List<Integer> validSolution = Arrays.asList(0, 1, 2, null);
-        assertTrue(isValidSolution(validSolution, preProcessor));
+        assertTrue(isValidSolution(validSolution, preProcessor.getSamplesPerCandidate(),
+                preProcessor.getNumberOfSamples()));
 
         String fileName = "AC_01_cover.txt";
         List<Integer> validSolutionForBigEnvironment = Arrays.asList(1114, 1999, 236, 2483, 817, 1366, 423, 49, 1188,

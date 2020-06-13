@@ -77,7 +77,8 @@ public class AntForSetCoveringTest {
         }
 
         assertEquals(0, ant.getNeighbourhood(environment).size());
-        assertTrue(FileUtils.isValidSolution(ant.getSolution(), preProcessor));
+        assertTrue(FileUtils.isValidSolution(ant.getSolution(), preProcessor.getSamplesPerCandidate(),
+                preProcessor.getNumberOfSamples()));
     }
 
     @Test

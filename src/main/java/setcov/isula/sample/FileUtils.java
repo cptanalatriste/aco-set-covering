@@ -90,15 +90,17 @@ public class FileUtils {
 
     public static boolean isValidSolution(List<Integer> solutionFound, String fileName) throws IOException {
         SetCoveringPreProcessor preProcessor = initialisePreProcessorFromFile(fileName);
-        return isValidSolution(solutionFound, preProcessor);
+        return isValidSolution(solutionFound, preProcessor.getSamplesPerCandidate(), preProcessor.getNumberOfSamples());
     }
 
 
-    public static boolean isValidSolution(List<Integer> solutionFound, SetCoveringPreProcessor preProcessor) {
-        Map<Integer, Set<Integer>> samplesPerCandidate = preProcessor.calculateSamplesPerCandidate();
+    public static boolean isValidSolution(List<Integer> solutionFound,
+                                          Map<Integer, Set<Integer>> samplesPerCandidate,
+                                          int numberOfSamples) {
+        logger.info("Validating generated solution.");
 
-        boolean[] samplesCovered = new boolean[preProcessor.getNumberOfSamples()];
-        int pendingSamples = preProcessor.getNumberOfSamples();
+        boolean[] samplesCovered = new boolean[numberOfSamples];
+        int pendingSamples = numberOfSamples;
 
         for (Integer candidateIndex : solutionFound) {
             if (candidateIndex != null) {
@@ -112,7 +114,7 @@ public class FileUtils {
             }
         }
         if (pendingSamples > 0) {
-            List<Integer> uncoveredSamples = IntStream.range(0, preProcessor.getNumberOfSamples())
+            List<Integer> uncoveredSamples = IntStream.range(0, numberOfSamples)
                     .filter((candidateIndex) -> !samplesCovered[candidateIndex])
                     .boxed()
                     .collect(Collectors.toList());
