@@ -112,12 +112,17 @@ public class AntForSetCovering extends AntWithPartialSolution<Integer, SetCoveri
             return Collections.emptyList();
         }
 
-        Set<Integer> coveringCandidates = environment.getCoveringCandidates(selectedSample.get());
+        return new ArrayList<>(getNeighbourhoodForSample(environment, selectedSample.get()));
+
+    }
+
+    public Set<Integer> getNeighbourhoodForSample(SetCoveringEnvironment environment, Integer selectedSample) {
+
+        Set<Integer> coveringCandidates = environment.getCoveringCandidates(selectedSample);
 
         return coveringCandidates.stream()
                 .filter(candidateIndex -> !this.isNodeVisited(candidateIndex) && !environment.isDominatedCandidate(candidateIndex))
-                .collect(Collectors.toList());
-
+                .collect(Collectors.toSet());
     }
 
     public Double getPheromoneTrailValue(Integer solutionComponent, Integer positionInSolution,

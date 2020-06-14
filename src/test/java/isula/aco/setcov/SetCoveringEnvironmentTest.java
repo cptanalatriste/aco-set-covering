@@ -46,7 +46,7 @@ public class SetCoveringEnvironmentTest {
     }
 
     @Test
-    void testFindDominatedCandidates() {
+    public void testFindDominatedCandidates() {
 
         assertTrue(this.environment.getDominatedCandidates().size() <= this.environment.getNumberOfCandidates());
 
@@ -90,7 +90,7 @@ public class SetCoveringEnvironmentTest {
     }
 
     @Test
-    void testValidateSolution() throws IOException {
+    public void testValidateSolution() throws IOException {
 
         SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);
@@ -99,8 +99,6 @@ public class SetCoveringEnvironmentTest {
         preProcessor.addCandidatesForSample(1, new String[]{"0", "2"});
         preProcessor.addCandidatesForSample(2, new String[]{"2", "3"});
         preProcessor.addCandidatesForSample(3, new String[]{"0", "3"});
-
-        SetCoveringEnvironment smallEnvironment = new SetCoveringEnvironment(preProcessor);
 
         List<Integer> invalidSolution = Arrays.asList(3, 1, null, null);
         assertFalse(isValidSolution(invalidSolution, preProcessor.getSamplesPerCandidate(),
@@ -111,9 +109,10 @@ public class SetCoveringEnvironmentTest {
                 preProcessor.getNumberOfSamples()));
 
         String fileName = "AC_01_cover.txt";
+        String dataDirectory = "/Users/cgavidia/Documents/coverData/normalProblems/";
         List<Integer> validSolutionForBigEnvironment = Arrays.asList(1114, 1999, 236, 2483, 817, 1366, 423, 49, 1188,
                 1007, 1980, 849, 775, 1494, 2069, 2596, 2739, 2466, 2221, 2852, 2583);
-        assertTrue(isValidSolution(validSolutionForBigEnvironment, fileName));
+        assertTrue(isValidSolution(validSolutionForBigEnvironment, dataDirectory + fileName));
 
     }
 }

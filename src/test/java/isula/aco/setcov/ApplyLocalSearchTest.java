@@ -12,7 +12,7 @@ import static setcov.isula.sample.FileUtils.isValidSolution;
 class ApplyLocalSearchTest {
 
     @Test
-    void testApplyPolicy() {
+    public void testApplyPolicy() {
 
         SetCoveringPreProcessor preProcessor = new SetCoveringPreProcessor(PREPROCESING_TIME_LIMIT);
         preProcessor.setNumberOfSamples(4);

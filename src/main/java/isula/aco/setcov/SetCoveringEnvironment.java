@@ -58,13 +58,13 @@ public class SetCoveringEnvironment extends Environment {
 
         if (performDominanceAnalysis) {
             this.dominatedCandidates = preProcessor.findDominatedCandidates();
-            this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.getSamplesPerCandidate());
 
         } else {
             logger.warning("Skipping dominance analysis");
             this.dominatedCandidates = Collections.emptySet();
-            this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.calculateSamplesPerCandidate());
         }
+
+        this.samplesPerCandidate = Collections.unmodifiableMap(preProcessor.getSamplesPerCandidate());
 
         logger.info(dominatedCandidates.size() + " dominated candidates from " + this.getNumberOfCandidates());
         this.mandatoryCandidates = this.findMandatoryCandidates();

@@ -93,7 +93,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         return acoSetCoveringWithIsula;
     }
 
-    private static BaseAntSystemConfiguration getDefaultAntSystemConfiguration() {
+    public static BaseAntSystemConfiguration getDefaultAntSystemConfiguration() {
         BaseAntSystemConfiguration configurationProvider = new BaseAntSystemConfiguration();
         configurationProvider.setInitialPheromoneValue(1.0);
         configurationProvider.setPheromoneImportance(1.0);

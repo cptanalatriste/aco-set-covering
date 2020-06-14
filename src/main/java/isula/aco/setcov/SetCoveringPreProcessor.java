@@ -7,7 +7,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -16,7 +15,6 @@ import java.util.stream.StreamSupport;
 public class SetCoveringPreProcessor {
 
     private static final Logger logger = Logger.getLogger(SetCoveringPreProcessor.class.getName());
-
 
     private Map<Integer, Set<Integer>> samplesPerCandidate;
     private final HashMap<Integer, Set<Integer>> candidatesPerSample;
@@ -32,31 +30,28 @@ public class SetCoveringPreProcessor {
         this.preprocessingTimeLimit = preprocessingTimeLimit;
     }
 
-    public void addCandidatesForSample(int sampleIndex, String[] candidatesAsTokens) {
-        this.candidatesPerSample.put(sampleIndex, Arrays.stream(candidatesAsTokens)
-                .map(Integer::parseInt)
-                .collect(Collectors.toUnmodifiableSet()));
+    public void setNumberOfCandidates(int numberOfCandidates) {
+        this.numberOfCandidates = numberOfCandidates;
+
+        IntStream.range(0, numberOfCandidates)
+                .forEachOrdered((candidateIndex) -> samplesPerCandidate.put(candidateIndex, new HashSet<>()));
     }
 
-    public Map<Integer, Set<Integer>> calculateSamplesPerCandidate() {
 
-        Map<Integer, Set<Integer>> samplesPerCandidate = new ConcurrentHashMap<>();
+    public void addCandidatesForSample(int sampleIndex, String[] candidatesAsTokens) {
+        Set<Integer> candidateList = Arrays.stream(candidatesAsTokens)
+                .map(Integer::parseInt)
+                .collect(Collectors.toUnmodifiableSet());
+        this.candidatesPerSample.put(sampleIndex, candidateList);
 
-        IntStream.range(0, this.getNumberOfCandidates())
+        candidateList.stream()
                 .unordered()
-                .parallel()
-                .forEach((candidateIndex) -> samplesPerCandidate.put(candidateIndex,
-                        this.getSamplesCovered(candidateIndex)));
-
-        return Collections.unmodifiableMap(samplesPerCandidate);
+                .forEach((candidateIndex) -> samplesPerCandidate.get(candidateIndex).add(sampleIndex));
     }
 
     public Set<Integer> findDominatedCandidates() {
 
-        logger.info("Starting calculateSamplesPerCandidate()");
-        this.samplesPerCandidate = calculateSamplesPerCandidate();
-
-        logger.info("Starting domination analysis");
+        logger.info("Starting dominance analysis");
 
         if (this.getNumberOfCandidates() == 0 || this.getNumberOfSamples() == 0) {
             throw new ConfigurationException("You need to set the number of candidates and samples before " +
@@ -93,15 +88,6 @@ public class SetCoveringPreProcessor {
     }
 
 
-    public Set<Integer> getSamplesCovered(int candidateIndex) {
-
-        return this.candidatesPerSample.entrySet().stream()
-                .filter((entry) -> entry.getValue().contains(candidateIndex))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toUnmodifiableSet());
-
-    }
-
     public int getNumberOfCandidates() {
         return this.numberOfCandidates;
     }
@@ -110,9 +96,6 @@ public class SetCoveringPreProcessor {
         return this.numberOfSamples;
     }
 
-    public void setNumberOfCandidates(int numberOfCandidates) {
-        this.numberOfCandidates = numberOfCandidates;
-    }
 
     public void setNumberOfSamples(int numberOfSamples) {
         this.numberOfSamples = numberOfSamples;
