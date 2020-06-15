@@ -69,7 +69,7 @@ public class AntForSetCoveringTest {
         nodeSelectionPolicy.setAnt(ant);
 
         List<Integer> sampleNeighbourhood = Arrays.asList(1, 3);
-        HashMap<Integer, Double> probabilities = nodeSelectionPolicy.getProbabilitiesForNeighbourhood(smallEnvironment,
+        Map<Integer, Double> probabilities = nodeSelectionPolicy.getProbabilitiesForNeighbourhood(smallEnvironment,
                 algorithmConfiguration, sampleNeighbourhood);
         assertTrue(probabilities.get(1) < probabilities.get(3));
         double delta = 0.001;

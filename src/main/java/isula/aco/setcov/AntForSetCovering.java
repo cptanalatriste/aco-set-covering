@@ -67,8 +67,9 @@ public class AntForSetCovering extends AntWithPartialSolution<Integer, SetCoveri
         Set<Integer> uncoveredSamples = this.getUncoveredSamples();
         Set<Integer> coveredByCandidate = environment.getSamplesForNonDominatedCandidate(candidateIndex);
 
-        Set<Integer> commonElements = uncoveredSamples.stream()
-                .distinct()
+        Set<Integer> commonElements = uncoveredSamples
+                .stream()
+                .unordered()
                 .filter(coveredByCandidate::contains)
                 .collect(Collectors.toSet());
 
@@ -80,7 +81,7 @@ public class AntForSetCovering extends AntWithPartialSolution<Integer, SetCoveri
         return IntStream.range(0, this.environment.getNumberOfSamples())
                 .filter(sampleIndex -> !this.samplesCovered[sampleIndex])
                 .boxed()
-                .collect(Collectors.toSet());
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public double getSolutionCost(SetCoveringEnvironment environment) {
@@ -98,7 +99,9 @@ public class AntForSetCovering extends AntWithPartialSolution<Integer, SetCoveri
 
     public boolean isSolutionReady(SetCoveringEnvironment environment) {
         Set<Integer> uncoveredSamples = this.getUncoveredSamples();
-        return uncoveredSamples.size() == 0;
+        int pendingSamples = uncoveredSamples.size();
+        logger.fine("Pending samples: " + pendingSamples);
+        return pendingSamples == 0;
     }
 
 
