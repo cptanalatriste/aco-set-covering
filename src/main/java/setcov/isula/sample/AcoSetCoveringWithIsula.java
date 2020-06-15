@@ -29,8 +29,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static final int PARALLEL_RUNS = 3;
 
-    private static final int NUMBER_OF_ANTS = 5;
-    private static final int NUMBER_OF_ITERATIONS = 10;
+    private static final int NUMBER_OF_ANTS = 20;
+    private static final int NUMBER_OF_ITERATIONS = 150;
     private static final Duration CONSTRUCTION_TIME_LIMIT = Duration.ofHours(1);
     public static final Duration PREPROCESING_TIME_LIMIT = Duration.ofHours(1);
 
