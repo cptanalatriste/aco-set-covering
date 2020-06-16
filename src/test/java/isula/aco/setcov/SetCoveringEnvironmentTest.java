@@ -18,7 +18,7 @@ public class SetCoveringEnvironmentTest {
 
     public SetCoveringEnvironmentTest() throws IOException {
         String fileName = "AC_10_cover.txt";
-        String dataDirectory = "/Users/cgavidia/Documents/coverData/normalProblems/";
+        String dataDirectory = "/Users/cgavidia/Documents/coverData/well-explored-problems/";
         SetCoveringPreProcessor preProcessor = FileUtils.initialisePreProcessorFromFile(dataDirectory + fileName);
         this.environment = new SetCoveringEnvironment(preProcessor);
     }
@@ -109,7 +109,7 @@ public class SetCoveringEnvironmentTest {
                 preProcessor.getNumberOfSamples()));
 
         String fileName = "AC_01_cover.txt";
-        String dataDirectory = "/Users/cgavidia/Documents/coverData/normalProblems/";
+        String dataDirectory = "/Users/cgavidia/Documents/coverData/well-explored-problems/";
         List<Integer> validSolutionForBigEnvironment = Arrays.asList(1114, 1999, 236, 2483, 817, 1366, 423, 49, 1188,
                 1007, 1980, 849, 775, 1494, 2069, 2596, 2739, 2466, 2221, 2852, 2583);
         assertTrue(isValidSolution(validSolutionForBigEnvironment, dataDirectory + fileName));

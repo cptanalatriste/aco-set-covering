@@ -9,6 +9,7 @@ import isula.aco.setcov.ConstructPartialSolutionsForSetCovering;
 import isula.aco.setcov.SetCoveringEnvironment;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,6 +71,8 @@ public class IteratedAntsForSetCovering extends AcoSetCoveringWithIsula {
         Set<Integer> partialSolution = new HashSet<>();
         try {
             List<Integer> solutionFile = FileUtils.getStoredSolution(this.getCurrentProcessingFile());
+            Collections.shuffle(solutionFile);
+
             partialSolution.addAll(solutionFile.subList(0, (int) (solutionFile.size() * REMOVAL_FACTOR)));
         } catch (IOException e) {
             e.printStackTrace();
