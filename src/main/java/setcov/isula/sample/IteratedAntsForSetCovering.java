@@ -67,7 +67,6 @@ public class IteratedAntsForSetCovering extends AcoSetCoveringWithIsula {
     }
 
     private Set<Integer> getPartialSolutionFromFile() {
-        logger.info("Loading partial solution for: " + this.getCurrentProcessingFile());
         Set<Integer> partialSolution = new HashSet<>();
         try {
             List<Integer> solutionFile = FileUtils.getStoredSolution(this.getCurrentProcessingFile());

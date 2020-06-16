@@ -152,6 +152,7 @@ public class FileUtils {
             }
         }
 
+        logger.info("Solution of size " + numberOfCandidates + " loaded from " + fileName);
         return storedSolution;
     }
 
@@ -205,8 +206,6 @@ public class FileUtils {
         String problemInstance = getInstanceName(inputFileName);
         String solutionFile = SOLUTION_DIRECTORY + "Isula_AntSystemConfiguration_Track1_" + problemInstance + ".txt";
 
-        List<Integer> storedSolution = readSolutionFromFile(solutionFile);
-        logger.info("Solution loaded from file: " + solutionFile);
-        return storedSolution;
+        return readSolutionFromFile(solutionFile);
     }
 }
