@@ -119,7 +119,8 @@ you have Maven installed before working with it.
 **This project depends on the Isula Framework**. Follow the instructions available in
  https://github.com/cptanalatriste/isula
 
-You can launch this project by executing ` mvn exec:java -Dexec.mainClass="setcov.isula.sample.AcoSetCoveringWithIsula"  -D exec.args="-f /pathToFolder/problem_data/AC_10_cover.txt" ` 
+You can launch this project by executing 
+`mvn exec:java -Dexec.mainClass="setcov.isula.sample.AcoSetCoveringWithIsula"  -D exec.args="-f /pathToFolder/problem_data/AC_10_cover.txt" ` 
 from the project root folder.
 
 More about Isula

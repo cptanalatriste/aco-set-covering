@@ -29,8 +29,9 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private static final int PARALLEL_RUNS = 3;
 
-    private static final int NUMBER_OF_ANTS = 20;
     private static final int NUMBER_OF_ITERATIONS = 150;
+    private static final int NUMBER_OF_ANTS = 20;
+    private static final boolean PERFORM_PARAMETER_TUNNING = true;
     private static final Duration CONSTRUCTION_TIME_LIMIT = Duration.ofHours(1);
     public static final Duration PREPROCESING_TIME_LIMIT = Duration.ofHours(1);
 
@@ -64,18 +65,26 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     protected static void processProblemFile(String fileName, SetCoveringEnvironment setCoveringEnvironment,
                                              AcoSetCoveringWithIsula acoSetCoveringWithIsula) throws IOException,
-            ConfigurationException {
+        ConfigurationException {
         String instanceName = getInstanceName(fileName);
 
         logger.info("Current instance: " + instanceName);
 
 
-        BaseAntSystemConfiguration configurationProvider = getDefaultAntSystemConfiguration();
+        BaseAntSystemConfiguration configurationProvider;
+        if (PERFORM_PARAMETER_TUNNING) {
+            configurationProvider = acoSetCoveringWithIsula.getOptimisedConfiguration(instanceName);
+        } else {
+            configurationProvider = getDefaultAntSystemConfiguration();
+        }
+
         configurationProvider.setNumberOfAnts(NUMBER_OF_ANTS);
         configurationProvider.setNumberOfIterations(NUMBER_OF_ITERATIONS);
 
+        logger.info("Algorithm configuration: " + configurationProvider);
+
         AcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = acoSetCoveringWithIsula.solveProblem(
-                setCoveringEnvironment, configurationProvider);
+            setCoveringEnvironment, configurationProvider);
         writeObjectToFile(instanceName + "_solver.txt", problemSolver);
 
         List<Integer> solutionFound = problemSolver.getBestSolution();
@@ -85,7 +94,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
     protected static SetCoveringEnvironment getSetCoveringEnvironment(String fileName) throws IOException {
         SetCoveringPreProcessor dataPreProcessor = FileUtils.initialisePreProcessorFromFile(fileName);
         return new SetCoveringEnvironment(dataPreProcessor,
-                requiresDominationAnalysis(fileName));
+            requiresDominationAnalysis(fileName));
     }
 
     protected static AcoSetCoveringWithIsula getCoordinatorInstance(String fileName, SetCoveringEnvironment setCoveringEnvironment) {
@@ -116,7 +125,7 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         List<Double> heuristicImportanceValues = Arrays.asList(1., 3., 5.);
 
         AcoParameterTuner parameterTuner = new AcoParameterTuner(numberOfAntsValues, evaporationRatioValues,
-                numberOfIterationValues, initialPheromoneValues, heuristicImportanceValues, pheromoneImportanceValues);
+            numberOfIterationValues, initialPheromoneValues, heuristicImportanceValues, pheromoneImportanceValues);
 
         logger.info("Starting parameter tuning");
         ConfigurationProvider configurationProvider = parameterTuner.getOptimalConfiguration(this);
@@ -140,13 +149,13 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
 
     private AcoProblemSolver<Integer, SetCoveringEnvironment> solveProblem(SetCoveringEnvironment environment,
                                                                            ConfigurationProvider configurationProvider)
-            throws ConfigurationException {
+        throws ConfigurationException {
 
         ParallelAcoProblemSolver<Integer, SetCoveringEnvironment> problemSolver = new ParallelAcoProblemSolver<>();
         problemSolver.initialize(() -> new SetCoveringEnvironment(environment),
-                this::createAntColony,
-                configurationProvider,
-                CONSTRUCTION_TIME_LIMIT, PARALLEL_RUNS);
+            this::createAntColony,
+            configurationProvider,
+            CONSTRUCTION_TIME_LIMIT, PARALLEL_RUNS);
 
         configureAntSystem(problemSolver);
 
@@ -178,8 +187,8 @@ public class AcoSetCoveringWithIsula implements ParameterOptimisationTarget {
         problemSolver.addDaemonAction(OfflinePheromoneUpdate::new);
 
         problemSolver.getAntColonies()
-                .forEach((colony) -> colony.addAntPolicies(
-                        new RandomNodeSelection<>(), new ApplyLocalSearch()));
+            .forEach((colony) -> colony.addAntPolicies(
+                new RandomNodeSelection<>(), new ApplyLocalSearch()));
 
     }
 
