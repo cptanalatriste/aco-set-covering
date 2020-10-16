@@ -17,7 +17,8 @@ Our goal is for this list to be as small as possible.
 ![Ant Colony ALgorithm for Set Covering](https://github.com/cptanalatriste/aco-set-covering/blob/master/img/aco_set_covering.png?raw=true)
 
 
-**Preprocessing:** In set covering problems, execution time depends
+### Preprocessing
+In set covering problems, execution time depends
 largely on the number of candidates in the problem instance.
 As is common in set covering solvers, we attempt to reduce this number by
 removing _dominated candidates_.
@@ -34,8 +35,8 @@ candidate, becoming a mandatory part of every solution.
 We group all mandatory candidates in a partial solution, that we
 expand in the solution construction phase.
 
-**Solution Construction:** There are a plethora of algorithms in the ACO
-framework.
+### Solution Construction
+There are a plethora of algorithms in the ACO framework.
 For the solution construction phase, we selected Any System (AS).
 AS is the very first ACO algorithm, originally proposed to address the Travelling
 Salesman problem.
@@ -83,8 +84,8 @@ parallel.
 Each colony produces one solution, and we select the best among them as the
 output of the solution construction phase.
 
-**Solution Improvement:** Our extended AS algorithm still struggled
-with very large problem instances.
+### Solution Improvement
+Our extended AS algorithm still struggled with very large problem instances.
 The solutions produced after exhausting the time budget were selected among
 very few candidate solutions.
 This did not guarantee a proper exploration of the solution space.
