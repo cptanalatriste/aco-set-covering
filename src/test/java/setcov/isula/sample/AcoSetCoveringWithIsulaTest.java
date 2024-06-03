@@ -13,7 +13,7 @@ public class AcoSetCoveringWithIsulaTest {
     @Test
     public void testReadingSmallProblemFile() throws IOException {
         String fileName = "AC_10_cover.txt";
-        String dataDirectory = "/Users/cgavidia/Documents/coverData/well-explored-problems/";
+        String dataDirectory = "problem_data/";
 
         SetCoveringPreProcessor preProcessor = FileUtils.initialisePreProcessorFromFile(
                 dataDirectory + fileName);
